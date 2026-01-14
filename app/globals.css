@@ -1,26 +1,118 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: auto !important;
+}
+
+/* DEFAULT (LIGHT MODE) */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --accent: #b8964e; /* softer gold */
+  --border: #e5e5e5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* DARK MODE */
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --accent: #d4af37; /* noir gold */
+  --border: #222;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* Utility helpers (optional but powerful) */
+.bg-theme {
+  background: var(--background);
+}
+
+.text-theme {
+  color: var(--foreground);
+}
+
+.border-theme {
+  border-color: var(--border);
+}
+
+
+/* 🔍 Search + Tabs Row */
+.products-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Search */
+.products-search {
+  flex: 1;
+  max-width: 360px;
+}
+
+.products-search input {
+  width: 100%;
+  background: #000;
+  border: 1px solid #333;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.products-search input:focus {
+  outline: none;
+  border-color: #d4af37;
+}
+
+/* Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.filter-tab {
+  background: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 10px 18px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.filter-tab:hover {
+  border-color: #d4af37;
+  color: #d4af37;
+}
+
+.filter-tab.active {
+  border-color: #d4af37;
+  color: #d4af37;
+}
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  .products-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-tabs {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .products-search {
+    max-width: 100%;
+  }
 }

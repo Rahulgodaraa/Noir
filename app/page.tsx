@@ -1,65 +1,124 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useLayoutEffect, useRef } from "react";
+import Hero from "./component/Hero";
+import AnimatedSection from "./component/AnimatedSection";
+import ProductShowcase from "./component/ProductShowcase";
+import NoirHomePreview from "./component/NoirHomePreview";
+import ContactForm from "./component/ContactForm";
+import Image from "next/image";
+import { useTheme } from "./context/ThemeContext";
+
+export default function Page() {
+  const { theme } = useTheme();
+  const universeRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    let ctx;
+    let gsap;
+    let ScrollTrigger;
+
+    (async () => {
+      const gsapModule = await import("gsap");
+      const stModule = await import("gsap/ScrollTrigger");
+
+      gsap = gsapModule.gsap;
+      ScrollTrigger = stModule.ScrollTrigger;
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctx = gsap.context(() => {
+        if (textRef.current) {
+          gsap.fromTo(
+            textRef.current,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: universeRef.current,
+                start: "top 80%",
+                end: "bottom 20%",
+                scrub: true, // fades in/out as user scrolls up/down
+              },
+            }
+          );
+        }
+      });
+    })();
+
+    return () => ctx?.revert();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen overflow-x-hidden bg-theme text-theme">
+
+      {/* 1. Hero */}
+      <Hero />
+
+      <AnimatedSection />
+
+      {/* 2. Fragrances */}
+      <section className="py-2">
+        <ProductShowcase />
+      </section>
+
+      {/* 3. Product Universe */}
+      <section
+        ref={universeRef}
+        className="max-w-6xl mx-auto mt-20 px-6 py-14 flex flex-col md:flex-row items-center gap-60"
+      >
+        {/* Logo */}
+        <div className="flex-shrink-0">
+          {theme === "dark" ? (
+            <Image
+              alt="noir"
+              width={300}
+              height={300}
+              src={"/images/white-logo.png"}
+            />
+          ) : (
+            <Image
+              alt="noir"
+              width={300}
+              height={300}
+              src={"/images/Logo.png"}
+            />
+          )}
+        </div>
+
+        {/* Text */}
+        <div ref={textRef} className=" text-center md:text-left">
+          <h2
+            className="text-3xl font-serif mb-4"
+            style={{ color: "var(--accent)" }}
+          >
+            The Noir Universe
+          </h2>
+
+          <p className="max-w-2xl text-lg opacity-80">
+            From signature fragrances to refined home candles, Noir Essence
+            creates sensory experiences designed to elevate both presence and space.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      {/* 4. Candles */}
+      <section
+        className="py-12"
+        style={{
+          background: "color-mix(in srgb, var(--background) 95%, black)",
+        }}
+      >
+        <NoirHomePreview />
+      </section>
+
+      {/* 5. Contact */}
+      <section className="max-w-4xl mx-auto px-6 py-24">
+        <ContactForm />
+      </section>
+
+    </main>
   );
 }

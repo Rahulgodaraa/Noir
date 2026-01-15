@@ -14,7 +14,7 @@ export default function ContactForm() {
     done: false,
   });
 
-  const submit = async (e) => {
+  const submit = async (e : React.FormEvent) => {
     e.preventDefault();
     setState((s) => ({ ...s, loading: true }));
 

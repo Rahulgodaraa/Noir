@@ -1,83 +1,30 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { openWhatsApp } from "@/app/component/openWhatsApp";
 import { useTheme } from "../context/ThemeContext";
 import Image from "next/image";
 
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "Signature Night",
-    category: "perfume",
-    description:
-      "A bold, seductive fragrance with deep woody and amber notes for evenings.",
-    image: "/images/signature-night.png",
-  },
-  {
-    id: 2,
-    name: "Cool Wave",
-    category: "perfume",
-    description:
-      "Fresh aquatic notes blended with cool blue accords for daily wear.",
-    image: "/images/bottle-blue.png",
-  },
-  {
-    id: 3,
-    name: "Classic Blue",
-    category: "perfume",
-    description:
-      "Timeless masculine freshness with a clean and confident finish.",
-    image: "/images/man.png",
-  },
-  {
-    id: 4,
-    name: "Noir",
-    category: "perfume",
-    description:
-      "Dark, intense notes crafted for a mysterious and premium feel.",
-    image: "/images/noir-perfume.png",
-  },
-  {
-    id: 5,
-    name: "Luxury Candle",
-    category: "candle",
-    description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle-image.png",
-  },
-  
-  {
-    id: 6,
-    name: "Luxury Candle",
-    category: "candle",
-    description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle-matte.jpg",
-  },
-  
-  {
-    id: 7,
-    name: "Luxury Candle",
-    category: "candle",
-    description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle-matte1.jpg",
-  },
-  
-  {
-    id: 8,
-    name: "Luxury Candle",
-    category: "candle",
-    description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle-crystal.jpg",
-  },
-  
-  {
-    id: 9,
-    name: "Luxury Candle",
-    category: "candle",
-    description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle-glass.jpg",
-  },
+// Define a Product interface for strict typing
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  image: string;
+}
+
+const PRODUCTS: Product[] = [
+  { id: 1, name: "Signature Night", category: "perfume", description: "A bold, seductive fragrance with deep woody and amber notes for evenings.", image: "/images/signature-night.png" },
+  { id: 2, name: "Cool Wave", category: "perfume", description: "Fresh aquatic notes blended with cool blue accords for daily wear.", image: "/images/bottle-blue.png" },
+  { id: 3, name: "Classic Blue", category: "perfume", description: "Timeless masculine freshness with a clean and confident finish.", image: "/images/man.png" },
+  { id: 4, name: "Noir", category: "perfume", description: "Dark, intense notes crafted for a mysterious and premium feel.", image: "/images/noir-perfume.png" },
+  { id: 5, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-image.png" },
+  { id: 6, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-matte.jpg" },
+  { id: 7, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-matte1.jpg" },
+  { id: 8, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-crystal.jpg" },
+  { id: 9, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-glass.jpg" },
 ];
 
 const TABS = [
@@ -86,9 +33,9 @@ const TABS = [
   { label: "Candles", value: "candle" },
 ];
 
-export default function ProductsPage() {
+function ProductsContent() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const cardsRef = useRef<any[]>([]);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -110,50 +57,37 @@ export default function ProductsPage() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  const shuffledCategory = (arr) => {
-  const perfumes = arr.filter(item => item.category === "perfume");
-  const candles = arr.filter(item => item.category === "candle");
+  const shuffledCategory = (arr: Product[]) => {
+    const perfumes = arr.filter((item) => item.category === "perfume");
+    const candles = arr.filter((item) => item.category === "candle");
 
-  const result = [];
-  let p = 0;
-  let c = 0;
+    const result: Product[] = [];
+    let p = 0;
+    let c = 0;
 
-  while (p < perfumes.length || c < candles.length) {
-    // add 2 perfumes
-    for (let i = 0; i < 2 && p < perfumes.length; i++) {
-      result.push(perfumes[p]);
-      p++;
+    while (p < perfumes.length || c < candles.length) {
+      for (let i = 0; i < 2 && p < perfumes.length; i++) {
+        result.push(perfumes[p]);
+        p++;
+      }
+      for (let i = 0; i < 2 && c < candles.length; i++) {
+        result.push(candles[c]);
+        c++;
+      }
     }
+    return result;
+  };
 
-    // add 2 candles
-    for (let i = 0; i < 2 && c < candles.length; i++) {
-      result.push(candles[c]);
-      c++;
-    }
-  }
+  const filtered = PRODUCTS.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(query);
+    const matchCategory = category === "all" ? true : p.category === category;
+    return matchSearch && matchCategory;
+  });
 
-  return result;
-};
-
-
-
-  // 1️⃣ Filter products
-const filtered = PRODUCTS.filter((p) => {
-  const matchSearch = p.name.toLowerCase().includes(query.toLowerCase());
-  const matchCategory =
-    category === "all" ? true : p.category === category;
-
-  return matchSearch && matchCategory;
-});
-
-// 2️⃣ Apply shuffle ONLY for "all"
-const filteredProducts =
-  category === "all" ? shuffledCategory(filtered) : filtered;
-
+  const filteredProducts = category === "all" ? shuffledCategory(filtered) : filtered;
 
   const sendEnquiryEmail = async (productName: string) => {
     if (!contact.trim()) return alert("Please enter email or phone number");
-
     setSending(true);
     try {
       const res = await fetch("/api/send-email", {
@@ -165,10 +99,8 @@ const filteredProducts =
           message: `Product: ${productName}\nCustomer Contact: ${contact}`,
         }),
       });
-
       if (!res.ok) throw new Error();
       setSent(true);
-
       setTimeout(() => {
         setSent(false);
         setActiveEnquiryId(null);
@@ -188,23 +120,15 @@ const filteredProducts =
         isDark ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
-      {/* Search + Tabs */}
-      <div
-        className={`sticky top-0 z-30 pb-10 ${
-          isDark ? "bg-black" : "bg-white"
-        }`}
-      >
+      <div className={`sticky top-0 z-30 pb-10 ${isDark ? "bg-black" : "bg-white"}`}>
         <input
           value={query}
           onChange={(e) => updateParam("q", e.target.value)}
           placeholder="Search products..."
           className={`w-full max-w-md mx-auto block mb-8 px-4 py-3 text-sm transition focus:outline-none ${
-            isDark
-              ? "bg-black border border-[#333] text-white"
-              : "bg-white border border-gray-300 text-black"
+            isDark ? "bg-black border border-[#333] text-white" : "bg-white border border-gray-300 text-black"
           }`}
         />
-
         <div className="flex gap-6 justify-center">
           {TABS.map((tab) => (
             <button
@@ -224,74 +148,35 @@ const filteredProducts =
         </div>
       </div>
 
-      {/* Products Grid */}
       <div className="max-w-6xl mx-auto grid gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         {filteredProducts.map((product, index) => (
           <div
             key={product.id}
-            ref={(el) => (cardsRef.current[index] = el)}
-            className={`border transition p-4 ${
-              isDark
-                ? "border-[#222] bg-[#070707]"
-                : "border-gray-200 bg-gray-50"
-            }`}
+           ref={(el) => { cardsRef.current[index] = el; }}
+            className={`border transition p-4 ${isDark ? "border-[#222] bg-[#070707]" : "border-gray-200 bg-gray-50"}`}
           >
-            {/* Image with Logo Background */}
-            <div className="relative h-72 overflow-hidden">
-              {/* Logo watermark */}
-              <div className="  pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="relative w-[420px] h-[290px] opacity-[0.59]">
+            <div className="relative h-72 overflow-hidden bg-[#111]">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="relative w-[300px] h-[300px] opacity-[0.2]">
                   <Image
-                    src={
-                      isDark
-                        ? "/images/white-logo.png"
-                        : "/images/Logo.png"
-                    }
+                    src={isDark ? "/images/white-logo.png" : "/images/Logo.png"}
                     alt="Noir watermark"
-                    // fill
-                    width={400}
-                    height={400}
-                    className="object-cover"
+                    width={300}
+                    height={300}
+                    className="object-contain"
                   />
                 </div>
               </div>
-
-              {/* Product Image */}
-              <img
-                src={product.image}
-                alt={product.name}
-                className="relative z-10 w-full h-full object-cover px-2"
-              />
+              <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-cover px-2" />
             </div>
 
-            {/* Content */}
             <div className="p-6">
-              <h3 className="text-xl font-serif text-[#d4af37] mb-3">
-                {product.name}
-              </h3>
-              <p
-                className={`text-sm mb-6 ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {product.description}
-              </p>
-
-              {/* Actions */}
+              <h3 className="text-xl font-serif text-[#d4af37] mb-3">{product.name}</h3>
+              <p className={`text-sm mb-6 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{product.description}</p>
               {activeEnquiryId !== product.id ? (
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => openWhatsApp(product.name, "")}
-                    className="text-[10px] uppercase tracking-widest border border-[#25D366] px-3 py-2 text-[#25D366]"
-                  >
-                    WhatsApp
-                  </button>
-                  <button
-                    onClick={() => setActiveEnquiryId(product.id)}
-                    className="text-[10px] uppercase tracking-widest border px-3 py-2"
-                  >
-                    Email Enquiry
-                  </button>
+                  <button onClick={() => openWhatsApp(product.name, "")} className="text-[10px] uppercase tracking-widest border border-[#25D366] px-3 py-2 text-[#25D366]">WhatsApp</button>
+                  <button onClick={() => setActiveEnquiryId(product.id)} className="text-[10px] uppercase tracking-widest border px-3 py-2">Email Enquiry</button>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -299,16 +184,9 @@ const filteredProducts =
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="Your Email or Phone"
-                    className={`px-3 py-2 text-xs w-full ${
-                      isDark
-                        ? "bg-black border border-[#333] text-white"
-                        : "bg-white border border-gray-300 text-black"
-                    }`}
+                    className={`px-3 py-2 text-xs w-full ${isDark ? "bg-black border border-[#333] text-white" : "bg-white border border-gray-300 text-black"}`}
                   />
-                  <button
-                    onClick={() => sendEnquiryEmail(product.name)}
-                    className="w-full bg-[#d4af37] text-black text-[10px] uppercase font-bold py-2"
-                  >
+                  <button onClick={() => sendEnquiryEmail(product.name)} className="w-full bg-[#d4af37] text-black text-[10px] uppercase font-bold py-2">
                     {sending ? "Sending..." : sent ? "Sent ✓" : "Send Now"}
                   </button>
                 </div>
@@ -318,5 +196,14 @@ const filteredProducts =
         ))}
       </div>
     </main>
+  );
+}
+
+// 🔑 IMPORTANT: useSearchParams() requires a Suspense boundary for Next.js builds
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <ProductsContent />
+    </Suspense>
   );
 }

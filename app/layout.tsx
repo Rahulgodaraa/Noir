@@ -2,10 +2,12 @@ import Footer from "./component/Footer";
 import NavbarClient from "./component/NavbarClient";
 import "./globals.css";
 import { ThemeProvider } from "./context/ThemeContext";
-// import NavbarClient from "@/component/NavbarClient";
-// import Footer from "@/component/Footer";
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode // ✅ Changed from React.Component to React.ReactNode
+}) {
   return (
     <html lang="en">
       <body className="antialiased">

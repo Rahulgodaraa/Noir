@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 
@@ -11,63 +11,70 @@ export default function FlipGallery() {
   useGSAP(() => {
     let ctx: any;
 
-    (async () => {
-      // 1. Lowercase path "gsap/flip" fixes the Windows build casing error
-      const gsapMod = await import("gsap");
-      const stMod = await import("gsap/ScrollTrigger");
-      const flipMod = await import("gsap/flip");
-      
+    const initFlip = async () => {
+      try {
+        // 1. Load GSAP and ScrollTrigger normally
+        const gsapModule = await import("gsap");
+        const stModule = await import("gsap/ScrollTrigger");
+        
+        const gsap = gsapModule.gsap;
+        const ScrollTrigger = stModule.ScrollTrigger;
+        
+        // 2. Bypass TypeScript casing check using require + any
+        // This is the "Silver Bullet" for the Windows Flip error
+        const flipModule: any = require("gsap/flip");
+        const Flip = flipModule.Flip;
 
-      const gsap = gsapMod.gsap;
-      const ScrollTrigger = stMod.ScrollTrigger;
-      const Flip = flipMod.Flip;
+        gsap.registerPlugin(ScrollTrigger, Flip);
 
-      gsap.registerPlugin(ScrollTrigger, Flip);
+        const gallery = galleryRef.current;
+        if (!gallery || !sectionRef.current) return;
 
-      const gallery = galleryRef.current;
-      if (!gallery) return;
+        const items = gsap.utils.toArray<HTMLElement>(
+          gallery.querySelectorAll(".gallery-item")
+        );
 
-      const items = gsap.utils.toArray<HTMLElement>(
-        gallery.querySelectorAll(".gallery-item")
-      );
+        ctx = gsap.context(() => {
+          gsap.set(items, { opacity: 1 });
 
-      // 2. Wrap logic in context for safe cleanup
-      ctx = gsap.context(() => {
-        gsap.set(items, { opacity: 1 });
+          // Capture FINAL layout state
+          gallery.classList.add("gallery--final");
+          const state = Flip.getState(items);
+          gallery.classList.remove("gallery--final");
 
-        // Capture FINAL layout state
-        gallery.classList.add("gallery--final");
-        const state = Flip.getState(items);
-        gallery.classList.remove("gallery--final");
+          const flipAnim = Flip.to(state, {
+            ease: "expoScale(1, 5)",
+            simple: true,
+            absolute: true,
+          });
 
-        const flipAnim = Flip.to(state, {
-          ease: "expoScale(1, 5)",
-          simple: true,
-          absolute: true,
-        });
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "center center",
+              end: "+=120%",
+              scrub: true,
+              pin: true,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "center center",
-            end: "+=120%",
-            scrub: true,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true, // Important for Flip stability
-          },
-        });
+          tl.add(flipAnim);
 
-        tl.add(flipAnim);
+          // Hide non-primary images
+          tl.to(items.slice(1), {
+            opacity: 0,
+            duration: 0.2,
+            ease: "power1.out",
+          }, ">-0.1");
+        }, sectionRef);
+      } catch (err) {
+        console.warn("GSAP Flip failed to load:", err);
+      }
+    };
 
-        // Hide non-primary images
-        tl.to(items.slice(1), {
-          opacity: 0,
-          duration: 0.2,
-          ease: "power1.out",
-        }, ">-0.1");
-      }, sectionRef);
-    })();
+    initFlip();
 
     return () => ctx?.revert();
   }, { scope: sectionRef });
@@ -78,7 +85,6 @@ export default function FlipGallery() {
         ref={galleryRef}
         className="gallery grid grid-cols-2 md:grid-cols-4 gap-6 place-items-center w-full h-full px-10"
       >
-        {/* Item 1 */}
         <div className="gallery-item z-10">
           <Image
             src="/images/candle-matte.jpg"
@@ -89,7 +95,6 @@ export default function FlipGallery() {
           />
         </div>
 
-        {/* Item 2 */}
         <div className="gallery-item">
           <Image
             src="/images/signature-night.jpg"
@@ -100,7 +105,6 @@ export default function FlipGallery() {
           />
         </div>
 
-        {/* Item 3 */}
         <div className="gallery-item">
           <Image
             src="/images/bottle-blue.png"
@@ -111,7 +115,6 @@ export default function FlipGallery() {
           />
         </div>
 
-        {/* Item 4 */}
         <div className="gallery-item">
           <Image
             src="/images/candle-glass.jpg"

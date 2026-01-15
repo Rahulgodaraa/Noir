@@ -3,34 +3,40 @@
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { openWhatsApp } from "@/app/component/openWhatsApp";
+import { useTheme } from "../context/ThemeContext";
+import Image from "next/image";
 
 const PRODUCTS = [
   {
     id: 1,
     name: "Signature Night",
     category: "perfume",
-    description: "A bold, seductive fragrance with deep woody and amber notes for evenings.",
+    description:
+      "A bold, seductive fragrance with deep woody and amber notes for evenings.",
     image: "/images/signature-night.png",
   },
   {
     id: 2,
     name: "Cool Wave",
     category: "perfume",
-    description: "Fresh aquatic notes blended with cool blue accords for daily wear.",
+    description:
+      "Fresh aquatic notes blended with cool blue accords for daily wear.",
     image: "/images/bottle-blue.png",
   },
   {
     id: 3,
     name: "Classic Blue",
     category: "perfume",
-    description: "Timeless masculine freshness with a clean and confident finish.",
+    description:
+      "Timeless masculine freshness with a clean and confident finish.",
     image: "/images/man.png",
   },
   {
     id: 4,
     name: "Noir",
     category: "perfume",
-    description: "Dark, intense notes crafted for a mysterious and premium feel.",
+    description:
+      "Dark, intense notes crafted for a mysterious and premium feel.",
     image: "/images/noir-perfume.png",
   },
   {
@@ -38,7 +44,39 @@ const PRODUCTS = [
     name: "Luxury Candle",
     category: "candle",
     description: "Warm aromatic candle crafted for calm and relaxation.",
-    image: "/images/candle.png",
+    image: "/images/candle-image.png",
+  },
+  
+  {
+    id: 6,
+    name: "Luxury Candle",
+    category: "candle",
+    description: "Warm aromatic candle crafted for calm and relaxation.",
+    image: "/images/candle-matte.jpg",
+  },
+  
+  {
+    id: 7,
+    name: "Luxury Candle",
+    category: "candle",
+    description: "Warm aromatic candle crafted for calm and relaxation.",
+    image: "/images/candle-matte1.jpg",
+  },
+  
+  {
+    id: 8,
+    name: "Luxury Candle",
+    category: "candle",
+    description: "Warm aromatic candle crafted for calm and relaxation.",
+    image: "/images/candle-crystal.jpg",
+  },
+  
+  {
+    id: 9,
+    name: "Luxury Candle",
+    category: "candle",
+    description: "Warm aromatic candle crafted for calm and relaxation.",
+    image: "/images/candle-glass.jpg",
   },
 ];
 
@@ -49,13 +87,14 @@ const TABS = [
 ];
 
 export default function ProductsPage() {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<any[]>([]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const view = "grid"; // keep your existing view logic if needed
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const query = searchParams.get("q")?.toLowerCase() || "";
   const category = searchParams.get("category") || "all";
@@ -71,11 +110,46 @@ export default function ProductsPage() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  const filteredProducts = PRODUCTS.filter((p) => {
-    const matchSearch = p.name.toLowerCase().includes(query);
-    const matchCategory = category === "all" || p.category === category;
-    return matchSearch && matchCategory;
-  });
+  const shuffledCategory = (arr) => {
+  const perfumes = arr.filter(item => item.category === "perfume");
+  const candles = arr.filter(item => item.category === "candle");
+
+  const result = [];
+  let p = 0;
+  let c = 0;
+
+  while (p < perfumes.length || c < candles.length) {
+    // add 2 perfumes
+    for (let i = 0; i < 2 && p < perfumes.length; i++) {
+      result.push(perfumes[p]);
+      p++;
+    }
+
+    // add 2 candles
+    for (let i = 0; i < 2 && c < candles.length; i++) {
+      result.push(candles[c]);
+      c++;
+    }
+  }
+
+  return result;
+};
+
+
+
+  // 1️⃣ Filter products
+const filtered = PRODUCTS.filter((p) => {
+  const matchSearch = p.name.toLowerCase().includes(query.toLowerCase());
+  const matchCategory =
+    category === "all" ? true : p.category === category;
+
+  return matchSearch && matchCategory;
+});
+
+// 2️⃣ Apply shuffle ONLY for "all"
+const filteredProducts =
+  category === "all" ? shuffledCategory(filtered) : filtered;
+
 
   const sendEnquiryEmail = async (productName: string) => {
     if (!contact.trim()) return alert("Please enter email or phone number");
@@ -110,20 +184,25 @@ export default function ProductsPage() {
   return (
     <main
       ref={containerRef}
-      className="min-h-screen bg-black text-white px-6 py-24"
+      className={`min-h-screen px-6 py-24 transition-colors duration-300 ${
+        isDark ? "bg-black text-white" : "bg-white text-black"
+      }`}
     >
-      {/* 🔹 Sticky Search + Tabs */}
-      <div className="sticky top-0 z-30 bg-black pb-10">
+      {/* Search + Tabs */}
+      <div
+        className={`sticky top-0 z-30 pb-10 ${
+          isDark ? "bg-black" : "bg-white"
+        }`}
+      >
         <input
           value={query}
           onChange={(e) => updateParam("q", e.target.value)}
           placeholder="Search products..."
-          className="
-            w-full max-w-md mx-auto block mb-8
-            bg-black border border-[#333]
-            px-4 py-3 text-sm
-            focus:outline-none focus:border-[#d4af37]
-          "
+          className={`w-full max-w-md mx-auto block mb-8 px-4 py-3 text-sm transition focus:outline-none ${
+            isDark
+              ? "bg-black border border-[#333] text-white"
+              : "bg-white border border-gray-300 text-black"
+          }`}
         />
 
         <div className="flex gap-6 justify-center">
@@ -131,13 +210,13 @@ export default function ProductsPage() {
             <button
               key={tab.value}
               onClick={() => updateParam("category", tab.value)}
-              className={`text-xs uppercase tracking-widest px-4 py-2 border transition
-                ${
-                  category === tab.value
-                    ? "border-[#d4af37] text-[#d4af37]"
-                    : "border-gray-600 text-gray-400 hover:border-[#d4af37] hover:text-[#d4af37]"
-                }
-              `}
+              className={`text-xs uppercase tracking-widest px-4 py-2 border transition ${
+                category === tab.value
+                  ? "border-[#d4af37] text-[#d4af37]"
+                  : isDark
+                  ? "border-gray-600 text-gray-400"
+                  : "border-gray-300 text-gray-500"
+              }`}
             >
               {tab.label}
             </button>
@@ -145,56 +224,71 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* 🔹 Products Grid */}
-      <div
-        className={`max-w-6xl mx-auto grid gap-12 ${
-          view === "grid"
-            ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-            : "grid-cols-1"
-        }`}
-      >
+      {/* Products Grid */}
+      <div className="max-w-6xl mx-auto grid gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         {filteredProducts.map((product, index) => (
           <div
             key={product.id}
             ref={(el) => (cardsRef.current[index] = el)}
-            className={`border border-[#222] bg-[#070707] transition-all duration-300 ${
-              activeEnquiryId === product.id
-                ? "border-[#d4af37] ring-1 ring-[#d4af37]/30"
-                : ""
+            className={`border transition p-4 ${
+              isDark
+                ? "border-[#222] bg-[#070707]"
+                : "border-gray-200 bg-gray-50"
             }`}
           >
-            {/* Image */}
-            <div className="h-72">
+            {/* Image with Logo Background */}
+            <div className="relative h-72 overflow-hidden">
+              {/* Logo watermark */}
+              <div className="  pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="relative w-[420px] h-[290px] opacity-[0.59]">
+                  <Image
+                    src={
+                      isDark
+                        ? "/images/white-logo.png"
+                        : "/images/Logo.png"
+                    }
+                    alt="Noir watermark"
+                    // fill
+                    width={400}
+                    height={400}
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Product Image */}
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="relative z-10 w-full h-full object-cover px-2"
               />
             </div>
 
             {/* Content */}
-            <div className="p-6 flex flex-col justify-between">
-              <div>
-                <h3 className="text-xl font-serif text-[#d4af37] mb-3">
-                  {product.name}
-                </h3>
-                <p className="text-gray-400 text-sm mb-6">
-                  {product.description}
-                </p>
-              </div>
+            <div className="p-6">
+              <h3 className="text-xl font-serif text-[#d4af37] mb-3">
+                {product.name}
+              </h3>
+              <p
+                className={`text-sm mb-6 ${
+                  isDark ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {product.description}
+              </p>
 
               {/* Actions */}
               {activeEnquiryId !== product.id ? (
                 <div className="flex gap-2">
                   <button
                     onClick={() => openWhatsApp(product.name, "")}
-                    className="text-[10px] uppercase tracking-widest border border-[#25D366] px-3 py-2 text-[#25D366] hover:bg-[#25D366] hover:text-black transition"
+                    className="text-[10px] uppercase tracking-widest border border-[#25D366] px-3 py-2 text-[#25D366]"
                   >
                     WhatsApp
                   </button>
                   <button
                     onClick={() => setActiveEnquiryId(product.id)}
-                    className="text-[10px] uppercase tracking-widest border border-gray-600 px-3 py-2 text-gray-300 hover:border-[#d4af37] hover:text-[#d4af37] transition"
+                    className="text-[10px] uppercase tracking-widest border px-3 py-2"
                   >
                     Email Enquiry
                   </button>
@@ -202,30 +296,21 @@ export default function ProductsPage() {
               ) : (
                 <div className="space-y-2">
                   <input
-                    autoFocus
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="Your Email or Phone"
-                    className="bg-black border border-[#333] px-3 py-2 text-xs w-full focus:outline-none focus:border-[#d4af37]"
+                    className={`px-3 py-2 text-xs w-full ${
+                      isDark
+                        ? "bg-black border border-[#333] text-white"
+                        : "bg-white border border-gray-300 text-black"
+                    }`}
                   />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => sendEnquiryEmail(product.name)}
-                      disabled={sending}
-                      className="flex-1 bg-[#d4af37] text-black text-[10px] uppercase font-bold py-2 disabled:opacity-50"
-                    >
-                      {sending ? "..." : sent ? "Sent ✓" : "Send Now"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveEnquiryId(null);
-                        setContact("");
-                      }}
-                      className="px-3 py-2 text-xs text-gray-500 hover:text-white"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => sendEnquiryEmail(product.name)}
+                    className="w-full bg-[#d4af37] text-black text-[10px] uppercase font-bold py-2"
+                  >
+                    {sending ? "Sending..." : sent ? "Sent ✓" : "Send Now"}
+                  </button>
                 </div>
               )}
             </div>

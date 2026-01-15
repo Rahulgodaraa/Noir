@@ -1,18 +1,31 @@
+"use client";
+
 import Image from "next/image";
 import SectionDivider from "./shared/SectionDivider";
+import { useTheme } from "../context/ThemeContext";
 
 export default function NoirHomePreview() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
-    <section className="py-1 bg-black border-t border-white/10">
+    <section
+      className={`py-1 border-t transition-colors duration-300 ${
+        isDark
+          ? "bg-black border-white/10"
+          : "bg-white border-black/10"
+      }`}
+    >
       <div className="max-w-6xl mx-auto px-1">
 
         {/* Section Heading */}
         <div className="text-center mb-10">
-          {/* <h2 className="text-3xl md:text-4xl font-serif text-[#d4af37] mb-4">
-            Noir Home
-          </h2> */}
-          <SectionDivider title="Noir Home"/>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <SectionDivider title="Noir Home" />
+          <p
+            className={`max-w-2xl mx-auto ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             Crafted to elevate your space, Noir Home introduces a refined range
             of luxury candles designed to create warmth, calm, and ambience.
           </p>
@@ -25,7 +38,7 @@ export default function NoirHomePreview() {
           <div className="group text-center">
             <div className="overflow-hidden rounded-xl">
               <Image
-                src="/images/candle-glass.jpg"
+                src="/images/candle-crystal1.jpg"
                 alt="Classic Glass Candle"
                 width={400}
                 height={400}
@@ -35,7 +48,11 @@ export default function NoirHomePreview() {
             <h3 className="mt-6 text-xl font-serif text-[#d4af37]">
               Classic Glass Collection
             </h3>
-            <p className="text-gray-400 mt-2 text-sm">
+            <p
+              className={`mt-2 text-sm ${
+                isDark ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
               Clean, minimal glass candles perfect for hotels, spas, and
               everyday luxury.
             </p>
@@ -55,13 +72,17 @@ export default function NoirHomePreview() {
             <h3 className="mt-6 text-xl font-serif text-[#d4af37]">
               Matte Luxe Collection
             </h3>
-            <p className="text-gray-400 mt-2 text-sm">
+            <p
+              className={`mt-2 text-sm ${
+                isDark ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
               Soft pastel tones with a modern aesthetic, crafted for refined
               gifting.
             </p>
           </div>
 
-          {/* Crystal */}
+          {/* Crystal Cut */}
           <div className="group text-center">
             <div className="overflow-hidden rounded-xl">
               <Image
@@ -75,7 +96,11 @@ export default function NoirHomePreview() {
             <h3 className="mt-6 text-xl font-serif text-[#d4af37]">
               Crystal Cut Collection
             </h3>
-            <p className="text-gray-400 mt-2 text-sm">
+            <p
+              className={`mt-2 text-sm ${
+                isDark ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
               Faceted crystal designs that bring a statement of elegance and
               warmth to any space.
             </p>
@@ -85,7 +110,11 @@ export default function NoirHomePreview() {
 
         {/* Soft CTA */}
         <div className="text-center mt-20">
-          <p className="text-gray-400 mb-4">
+          <p
+            className={`mb-4 ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             Available in gel wax and soya wax variants with refined fragrances.
           </p>
           <span className="inline-block text-sm tracking-widest text-[#d4af37] uppercase">

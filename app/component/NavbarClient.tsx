@@ -1,17 +1,26 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "../context/ThemeContext";
 import Image from "next/image";
 
 export default function NavbarClient() {
-  const navRef = useRef(null);
+  const navRef = useRef<HTMLElement | null>(null);
   const { theme, toggleTheme } = useTheme();
 
+  // 🔐 Prevent hydration mismatch
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useLayoutEffect(() => {
-    let ctx;
-    let gsap;
+    if (!mounted) return;
+
+    let ctx: any;
+    let gsap: any;
 
     (async () => {
       const gsapModule = await import("gsap");
@@ -51,7 +60,12 @@ export default function NavbarClient() {
     })();
 
     return () => ctx?.revert();
-  }, []);
+  }, [mounted]);
+
+  // 🚫 Stop SSR render entirely for Navbar
+  if (!mounted) return null;
+
+  const isDark = theme === "dark";
 
   return (
     <header
@@ -66,22 +80,18 @@ export default function NavbarClient() {
         style={{ color: "var(--foreground)" }}
       >
         {/* Logo */}
-        <div className="nav-logo text-xl font-serif tracking-wide">
-          {theme === "dark" ? (
-            <Image
-              alt="noir"
-              width={100}
-              height={100}
-              src={"/images/white-logo.png"}
-            />
-          ) : (
-            <Image
-              alt="noir"
-              width={100}
-              height={100}
-              src={"/images/Logo.png"}
-            />
-          )}
+        <div className="nav-logo">
+          <Image
+            alt="Noir"
+            width={100}
+            height={40}
+            src={
+              isDark
+                ? "/images/white-logo.png"
+                : "/images/Logo.png"
+            }
+            priority
+          />
         </div>
 
         {/* Links */}
@@ -102,7 +112,6 @@ export default function NavbarClient() {
 
         {/* Actions */}
         <div className="nav-cta flex items-center gap-4">
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="text-xs tracking-wide px-4 py-2 rounded-full border transition"
@@ -111,10 +120,9 @@ export default function NavbarClient() {
               color: "var(--foreground)",
             }}
           >
-            {theme === "dark" ? "Light Mode" : "Night Mode"}
+            {isDark ? "Light Mode" : "Night Mode"}
           </button>
 
-          {/* CTA */}
           <Link
             href="/products"
             className="text-sm px-5 py-2 rounded-full border transition"

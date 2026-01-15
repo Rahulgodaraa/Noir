@@ -5,52 +5,54 @@ import Hero from "./component/Hero";
 import AnimatedSection from "./component/AnimatedSection";
 import ProductShowcase from "./component/ProductShowcase";
 import NoirHomePreview from "./component/NoirHomePreview";
-import ContactForm from "./component/ContactForm";
 import Image from "next/image";
 import { useTheme } from "./context/ThemeContext";
+import SectionDivider from "./component/shared/SectionDivider";
 
 export default function Page() {
   const { theme } = useTheme();
   const universeRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    let ctx;
-    let gsap;
-    let ScrollTrigger;
+useLayoutEffect(() => {
+  let ctx: any;
 
-    (async () => {
-      const gsapModule = await import("gsap");
-      const stModule = await import("gsap/ScrollTrigger");
+  (async () => {
+    const gsapModule = await import("gsap");
+    const stModule = await import("gsap/ScrollTrigger");
+    const gsap = gsapModule.gsap;
+    const ScrollTrigger = stModule.ScrollTrigger;
+    
+    gsap.registerPlugin(ScrollTrigger);
 
-      gsap = gsapModule.gsap;
-      ScrollTrigger = stModule.ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
+    ctx = gsap.context(() => {
+      if (textRef.current) {
+        gsap.fromTo(
+          textRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            immediateRender: false, 
+            scrollTrigger: {
+              trigger: universeRef.current,
+              start: "top 80%",
+              end: "bottom 20%",
+              scrub: true,
+              // Adding markers: true during dev can help you see 
+              // if the start/end positions are jumping
+            },
+          }
+        );
+      }
+    });
 
-      ctx = gsap.context(() => {
-        if (textRef.current) {
-          gsap.fromTo(
-            textRef.current,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: universeRef.current,
-                start: "top 80%",
-                end: "bottom 20%",
-                scrub: true, // fades in/out as user scrolls up/down
-              },
-            }
-          );
-        }
-      });
-    })();
+    // CRITICAL: Refresh must happen AFTER the context/animations are created
+    ScrollTrigger.refresh();
+  })();
 
-    return () => ctx?.revert();
-  }, []);
-
+  return () => ctx?.revert();
+}, []);
   return (
     <main className="min-h-screen overflow-x-hidden bg-theme text-theme">
 
@@ -67,29 +69,29 @@ export default function Page() {
       {/* 3. Product Universe */}
       <section
         ref={universeRef}
-        className="max-w-6xl mx-auto mt-20 px-6 py-14 flex flex-col md:flex-row items-center gap-60"
+        className="max-w-6xl mx-auto mt-20 px-6 py-14 flex flex-col md:flex-row items-center gap-16 md:gap-60"
       >
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          {theme === "dark" ? (
-            <Image
-              alt="noir"
-              width={300}
-              height={300}
-              src={"/images/white-logo.png"}
-            />
-          ) : (
-            <Image
-              alt="noir"
-              width={300}
-              height={300}
-              src={"/images/Logo.png"}
-            />
-          )}
+        {/* ✅ Desktop Logo Only */}
+        <div className="hidden md:flex flex-shrink-0">
+          <Image
+            alt="noir"
+            width={200}
+            height={200}
+            src={
+              theme === "dark"
+                ? "/images/white-logo.png"
+                : "/images/Logo.png"
+            }
+          />
         </div>
 
         {/* Text */}
-        <div ref={textRef} className=" text-center md:text-left">
+        <div ref={textRef} className="text-center md:text-left">
+          {/* ✅ Mobile-only divider */}
+          <div className="block md:hidden mb-6">
+            <SectionDivider title="NOIR UNIVERSE" />
+          </div>
+
           <h2
             className="text-3xl font-serif mb-4"
             style={{ color: "var(--accent)" }}
@@ -112,11 +114,6 @@ export default function Page() {
         }}
       >
         <NoirHomePreview />
-      </section>
-
-      {/* 5. Contact */}
-      <section className="max-w-4xl mx-auto px-6 py-24">
-        <ContactForm />
       </section>
 
     </main>

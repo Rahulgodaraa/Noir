@@ -4,6 +4,9 @@ html {
   scroll-behavior: auto !important;
 }
 
+
+
+
 /* DEFAULT (LIGHT MODE) */
 :root {
   --background: #ffffff;
@@ -11,6 +14,19 @@ html {
 
   --accent: #b8964e; /* softer gold */
   --border: #e5e5e5;
+}
+
+:root {
+  --hero-mobile-bg-light: url("/images/Logo.png");
+  --hero-mobile-bg-dark: url("/images/white-logo.png");
+}
+
+/* Desktop background */
+@media (min-width: 759px) {
+  :root {
+    --hero-mobile-bg-light: url("/images/hero-bg.jpg");
+    --hero-mobile-bg-dark: url("/images/hero-bg.jpg");
+  }
 }
 
 /* DARK MODE */

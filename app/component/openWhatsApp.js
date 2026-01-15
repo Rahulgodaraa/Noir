@@ -1,5 +1,5 @@
 export const openWhatsApp = (productName, contact) => {
-  const phoneNumber = "9222005261"; // your business number
+  const phoneNumber = "6350694838"; // your business number
 
   const message = `
 New Product Enquiry

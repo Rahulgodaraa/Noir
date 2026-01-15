@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function ContactForm() {
   const [state, setState] = useState({ name: "", email: "", message: "", loading: false, done: false });
 
-  const submit = async (e) => {
+  const submit = async (e : any) => {
     e.preventDefault();
     setState((s) => ({ ...s, loading: true }));
 

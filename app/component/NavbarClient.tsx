@@ -102,9 +102,9 @@ export default function NavbarClient() {
           <li className="nav-link">
             <Link href="/products">Fragrances</Link>
           </li>
-          <li className="nav-link">
+          {/* <li className="nav-link">
             <Link href="/about">About</Link>
-          </li>
+          </li> */}
           <li className="nav-link">
             <Link href="/contact">Contact</Link>
           </li>

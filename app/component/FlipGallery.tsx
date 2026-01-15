@@ -1,19 +1,26 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
 import Image from "next/image";
+import { useGSAP } from "@gsap/react";
 
 export default function FlipGallery() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const galleryRef = useRef<HTMLDivElement | null>(null);
 
-  useLayoutEffect(() => {
+  useGSAP(() => {
     let ctx: any;
 
     (async () => {
-      const { gsap } = await import("gsap");
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-      const { Flip } = await import("gsap/Flip");
+      // 1. Lowercase path "gsap/flip" fixes the Windows build casing error
+      const gsapMod = await import("gsap");
+      const stMod = await import("gsap/ScrollTrigger");
+      const flipMod = await import("gsap/flip");
+      
+
+      const gsap = gsapMod.gsap;
+      const ScrollTrigger = stMod.ScrollTrigger;
+      const Flip = flipMod.Flip;
 
       gsap.registerPlugin(ScrollTrigger, Flip);
 
@@ -24,11 +31,11 @@ export default function FlipGallery() {
         gallery.querySelectorAll(".gallery-item")
       );
 
+      // 2. Wrap logic in context for safe cleanup
       ctx = gsap.context(() => {
-        // Initial visibility
         gsap.set(items, { opacity: 1 });
 
-        // Capture FINAL layout
+        // Capture FINAL layout state
         gallery.classList.add("gallery--final");
         const state = Flip.getState(items);
         gallery.classList.remove("gallery--final");
@@ -47,68 +54,68 @@ export default function FlipGallery() {
             scrub: true,
             pin: true,
             anticipatePin: 1,
+            invalidateOnRefresh: true, // Important for Flip stability
           },
         });
 
         tl.add(flipAnim);
 
-        // 🔑 Hide non-primary images AFTER layout settles
-        tl.to(
-          items.slice(1),
-          {
-            opacity: 0,
-            duration: 0.2,
-            ease: "power1.out",
-          },
-          ">-0.1"
-        );
+        // Hide non-primary images
+        tl.to(items.slice(1), {
+          opacity: 0,
+          duration: 0.2,
+          ease: "power1.out",
+        }, ">-0.1");
       }, sectionRef);
     })();
 
     return () => ctx?.revert();
-  }, []);
+  }, { scope: sectionRef });
 
   return (
-    <div ref={sectionRef} className="relative h-screen overflow-hidden">
+    <div ref={sectionRef} className="relative h-screen overflow-hidden bg-black">
       <div
         ref={galleryRef}
-        id="gallery-8"
-        className="gallery grid grid-cols-2 md:grid-cols-4 gap-6 place-items-center"
+        className="gallery grid grid-cols-2 md:grid-cols-4 gap-6 place-items-center w-full h-full px-10"
       >
+        {/* Item 1 */}
         <div className="gallery-item z-10">
           <Image
             src="/images/candle-matte.jpg"
-            alt="Noir Signature Night"
+            alt="Noir Signature Night Candle"
             width={420}
             height={420}
-            className="rounded-xl object-cover"
+            className="rounded-xl object-cover shadow-2xl"
           />
         </div>
 
+        {/* Item 2 */}
         <div className="gallery-item">
           <Image
             src="/images/signature-night.jpg"
-            alt="Cool Wave"
+            alt="Luxury Fragrance Bottle"
             width={420}
             height={420}
             className="rounded-xl object-cover"
           />
         </div>
 
+        {/* Item 3 */}
         <div className="gallery-item">
           <Image
             src="/images/bottle-blue.png"
-            alt="Classic Blue"
+            alt="Classic Blue Essence"
             width={420}
             height={420}
             className="rounded-xl object-cover"
           />
         </div>
 
+        {/* Item 4 */}
         <div className="gallery-item">
           <Image
             src="/images/candle-glass.jpg"
-            alt="Noir Essence"
+            alt="Noir Essence Glass Candle"
             width={420}
             height={420}
             className="rounded-xl object-cover"

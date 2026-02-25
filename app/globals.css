@@ -24,8 +24,8 @@ html {
 /* Desktop background */
 @media (min-width: 759px) {
   :root {
-    --hero-mobile-bg-light: url("/images/hero-bg.jpg");
-    --hero-mobile-bg-dark: url("/images/hero-bg.jpg");
+    --hero-mobile-bg-light: url("/images/hero-bg.png");
+    --hero-mobile-bg-dark: url("/images/hero-bg.png");
   }
 }
 

@@ -13,22 +13,161 @@ interface Product {
   category: string;
   description: string;
   image: string;
+  price?: number;
+  quantity?: string;
+  size?: string;
+  bestFor?: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  image: string;
+  price?: number;
+  quantity?: string;
+  size?: string;
+  bestFor?: string;
 }
 
 const PRODUCTS: Product[] = [
-  { id: 1, name: "Signature Night", category: "perfume", description: "A bold, seductive fragrance with deep woody and amber notes for evenings.", image: "/images/signature-night.png" },
-  { id: 2, name: "Cool Wave", category: "perfume", description: "Fresh aquatic notes blended with cool blue accords for daily wear.", image: "/images/bottle-blue.png" },
-  { id: 3, name: "Classic Blue", category: "perfume", description: "Timeless masculine freshness with a clean and confident finish.", image: "/images/man.png" },
-  { id: 4, name: "Noir", category: "perfume", description: "Dark, intense notes crafted for a mysterious and premium feel.", image: "/images/noir-perfume.png" },
-  { id: 5, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-image.png" },
-  { id: 6, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-matte.jpg" },
-  { id: 7, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-matte1.jpg" },
-  { id: 8, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-crystal.jpg" },
-  { id: 9, name: "Luxury Candle", category: "candle", description: "Warm aromatic candle crafted for calm and relaxation.", image: "/images/candle-glass.jpg" },
+  // ================= PERFUMES =================
+  {
+    id: 1,
+    name: "Sabaya",
+    category: "perfume",
+    description: "Warm, graceful and timeless with rich yet soft elegance.",
+    image: "/new/sabya.png",
+    price: 799,
+    size: "100ml",
+    bestFor: "Evenings, parties, formal dinners",
+  },
+  {
+    id: 2,
+    name: "Seduction",
+    category: "perfume",
+    description: "Bold, intense and irresistibly magnetic.",
+    image: "/new/4.png",
+    price: 799,
+    size: "100ml",
+    bestFor: "Date nights, romantic evenings",
+  },
+  {
+    id: 3,
+    name: "Ehsaas",
+    category: "perfume",
+    description: "Delicate, soulful and emotionally captivating.",
+    image: "/new/6.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Weddings, celebrations, special occasions",
+  },
+  {
+    id: 4,
+    name: "The Man",
+    category: "perfume",
+    description: "Strong, refined and commanding modern masculinity.",
+    image: "/new/1.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Office, business meetings, leadership presence",
+  },
+  {
+    id: 5,
+    name: "Boss",
+    category: "perfume",
+    description: "Sharp, bold and unapologetically powerful.",
+    image: "/new/10.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Professional settings, confident personalities",
+  },
+  {
+    id: 6,
+    name: "Wanted",
+    category: "perfume",
+    description: "Mysterious, daring and addictive.",
+    image: "/new/8.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Night outs, celebrations, bold statements",
+  },
+  {
+    id: 7,
+    name: "Cool Breeze",
+    category: "perfume",
+    description: "Fresh, calm and effortlessly soothing.",
+    image: "/new/3.png",
+    price: 799,
+    size: "100ml",
+    bestFor: "Daily wear, brunches, summer days",
+  },
+  {
+    id: 8,
+    name: "Polo",
+    category: "perfume",
+    description: "Classic, confident and sophisticated.",
+    image: "/new/7.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Afternoon gatherings, casual elegance",
+  },
+  {
+    id: 9,
+    name: "Cool Wave",
+    category: "perfume",
+    description: "Crisp, elemental and refreshing.",
+    image: "/new/2.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Daytime professional wear, summer evenings",
+  },
+  {
+    id: 10,
+    name: "Swag",
+    category: "perfume",
+    description: "Bold, charismatic and unapologetic.",
+    image: "/new/12.jpeg",
+    price: 799,
+    size: "100ml",
+    bestFor: "Nightlife, special events, strong presence",
+  },
+
+  // ================= CANDLES =================
+  {
+    id: 11,
+    name: "Classic Glass Candle",
+    category: "candle",
+    description:
+      "Simple • Elegant • Timeless. Crystal-clear premium glass jar.",
+    image: "/images/candle-crystal1.jpg",
+    price: 599,
+    quantity: "180 ml",
+  },
+  {
+    id: 12,
+    name: "Matte Luxe Candle",
+    category: "candle",
+    description: "Minimalist • Modern • Soft-touch finish in elegant colours.",
+    image: "/images/candle-matte.jpg",
+    price: 649,
+    quantity: "200 ml",
+  },
+  {
+    id: 13,
+    name: "Diamond Cut Crystal Candle",
+    category: "candle",
+    description:
+      "Royal cut crystal jar with sculpted lid and premium detailing.",
+    image: "/images/candle-crystal1.jpg",
+    price: 499,
+    quantity: "120 ml",
+  },
 ];
 
 const TABS = [
-  { label: "All", value: "all" },
+  // { label: "All", value: "all" },
   { label: "Perfumes", value: "perfume" },
   { label: "Candles", value: "candle" },
 ];
@@ -36,6 +175,13 @@ const TABS = [
 function ProductsContent() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [selectedWaxType, setSelectedWaxType] = useState<{
+    [key: number]: "gel" | "soya";
+  }>({});
+
+  const [selectedFragrance, setSelectedFragrance] = useState<{
+    [key: number]: string;
+  }>({});
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,7 +190,7 @@ function ProductsContent() {
   const isDark = theme === "dark";
 
   const query = searchParams.get("q")?.toLowerCase() || "";
-  const category = searchParams.get("category") || "all";
+  const category = searchParams.get("category") || "perfume";
 
   const [activeEnquiryId, setActiveEnquiryId] = useState<number | null>(null);
   const [contact, setContact] = useState("");
@@ -84,7 +230,8 @@ function ProductsContent() {
     return matchSearch && matchCategory;
   });
 
-  const filteredProducts = category === "all" ? shuffledCategory(filtered) : filtered;
+  const filteredProducts =
+    category === "all" ? shuffledCategory(filtered) : filtered;
 
   const sendEnquiryEmail = async (productName: string) => {
     if (!contact.trim()) return alert("Please enter email or phone number");
@@ -120,16 +267,20 @@ function ProductsContent() {
         isDark ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
-      <div className={`sticky top-0 z-30 pb-10 ${isDark ? "bg-black" : "bg-white"}`}>
+      <div
+        className={`sticky top-0 z-30 pb-10 ${isDark ? "bg-black" : "bg-white"}`}
+      >
         <input
           value={query}
           onChange={(e) => updateParam("q", e.target.value)}
           placeholder="Search products..."
           className={`w-full max-w-md mx-auto block mb-8 px-4 py-3 text-sm transition focus:outline-none ${
-            isDark ? "bg-black border border-[#333] text-white" : "bg-white border border-gray-300 text-black"
+            isDark
+              ? "bg-black border border-[#333] text-white"
+              : "bg-white border border-gray-300 text-black"
           }`}
         />
-        <div className="flex gap-6 justify-center">
+        <div className="flex pt-1 gap-6 justify-center">
           {TABS.map((tab) => (
             <button
               key={tab.value}
@@ -138,8 +289,8 @@ function ProductsContent() {
                 category === tab.value
                   ? "border-[#d4af37] text-[#d4af37]"
                   : isDark
-                  ? "border-gray-600 text-gray-400"
-                  : "border-gray-300 text-gray-500"
+                    ? "border-gray-600 text-gray-400"
+                    : "border-gray-300 text-gray-500"
               }`}
             >
               {tab.label}
@@ -149,51 +300,143 @@ function ProductsContent() {
       </div>
 
       <div className="max-w-6xl mx-auto grid gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {filteredProducts.map((product, index) => (
-          <div
-            key={product.id}
-           ref={(el) => { cardsRef.current[index] = el; }}
-            className={`border transition p-4 ${isDark ? "border-[#222] bg-[#070707]" : "border-gray-200 bg-gray-50"}`}
-          >
-            <div className="relative h-72 overflow-hidden bg-[#111]">
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="relative w-[300px] h-[300px] opacity-[0.2]">
-                  <Image
-                    src={isDark ? "/images/white-logo.png" : "/images/Logo.png"}
-                    alt="Noir watermark"
-                    width={300}
-                    height={300}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-              <img src={product.image} alt={product.name} className="relative z-10 w-full h-full object-cover px-2" />
-            </div>
+        {filteredProducts.map((product, index) => {
+          const waxType = selectedWaxType[product.id] || "gel";
+          const finalPrice =
+            product.category === "candle"
+              ? waxType === "soya"
+                ? (product.price ?? 599) - 75
+                : (product.price ?? 599)
+              : (product.price ?? 799);
 
-            <div className="p-6">
-              <h3 className="text-xl font-serif text-[#d4af37] mb-3">{product.name}</h3>
-              <p className={`text-sm mb-6 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{product.description}</p>
-              {activeEnquiryId !== product.id ? (
-                <div className="flex gap-2">
-                  <button onClick={() => openWhatsApp(product.name, "")} className="text-[10px] uppercase tracking-widest border border-[#25D366] px-3 py-2 text-[#25D366]">WhatsApp</button>
-                  <button onClick={() => setActiveEnquiryId(product.id)} className="text-[10px] uppercase tracking-widest border px-3 py-2">Email Enquiry</button>
+          return (
+            <div
+              key={product.id}
+              ref={(el) => {
+                cardsRef.current[index] = el;
+              }}
+              className={`group border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                isDark
+                  ? "border-[#222] bg-[#0b0b0b] hover:border-[#d4af37]"
+                  : "border-gray-200 bg-white hover:border-[#d4af37]"
+              }`}
+            >
+              {/* Image */}
+              <div className="relative h-72 bg-gradient-to-b from-black to-[#111] flex items-center justify-center">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+
+              <div className="p-6 space-y-4">
+                {/* Name */}
+                <h3 className="text-xl font-serif text-[#d4af37] tracking-wide">
+                  {product.name}
+                </h3>
+
+                {/* Perfume Badge */}
+                {product.category === "perfume" && product.size && (
+                  <span className="inline-block text-[10px] uppercase tracking-widest border border-[#d4af37] text-[#d4af37] px-2 py-1 rounded">
+                    {product.size} Eau De Parfum
+                  </span>
+                )}
+
+                {/* Description */}
+                <p
+                  className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                >
+                  {product.description}
+                </p>
+
+                {/* Best For */}
+                {product.category === "perfume" && product.bestFor && (
+                  <p className="text-xs text-gray-500">
+                    <span className="text-[#d4af37] font-semibold">
+                      Best For:
+                    </span>{" "}
+                    {product.bestFor}
+                  </p>
+                )}
+
+                {/* Candle Options */}
+                {product.category === "candle" && (
+                  <>
+                    <p className="text-xs text-gray-500">
+                      Quantity: {product.quantity}
+                    </p>
+
+                    <select
+                      value={waxType}
+                      onChange={(e) =>
+                        setSelectedWaxType({
+                          ...selectedWaxType,
+                          [product.id]: e.target.value as "gel" | "soya",
+                        })
+                      }
+                      className="w-full px-3 py-2 text-xs rounded-md border border-gray-300 bg-white text-black"
+                    >
+                      <option value="gel">Gel Wax</option>
+                      <option value="soya">Soya Wax</option>
+                    </select>
+
+                    <select
+                      onChange={(e) =>
+                        setSelectedFragrance({
+                          ...selectedFragrance,
+                          [product.id]: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 text-xs rounded-md border border-gray-300 bg-white text-black"
+                    >
+                      <option value="">Choose Fragrance</option>
+                      <option>Sandalwood</option>
+                      <option>Melon</option>
+                      <option>Peppermint</option>
+                      <option>Lemon</option>
+                      <option>Orange</option>
+                      <option>Rose</option>
+                      <option>Lavender</option>
+                    </select>
+                  </>
+                )}
+
+                {/* Price */}
+                <div className="pt-4 border-t border-gray-800">
+                  <p className="text-xs uppercase tracking-widest text-gray-400">
+                    Price
+                  </p>
+                  <p className="text-2xl font-bold text-[#d4af37]">
+                    ₹{finalPrice}
+                  </p>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <input
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                    placeholder="Your Email or Phone"
-                    className={`px-3 py-2 text-xs w-full ${isDark ? "bg-black border border-[#333] text-white" : "bg-white border border-gray-300 text-black"}`}
-                  />
-                  <button onClick={() => sendEnquiryEmail(product.name)} className="w-full bg-[#d4af37] text-black text-[10px] uppercase font-bold py-2">
-                    {sending ? "Sending..." : sent ? "Sent ✓" : "Send Now"}
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-3">
+                  <button
+                    onClick={() =>
+                      openWhatsApp(
+                        product.name,
+                        `Interested in ${product.name} - ₹${finalPrice}`,
+                      )
+                    }
+                    className="flex-1 bg-[#25D366] text-white text-xs uppercase tracking-widest px-4 py-2 rounded-lg"
+                  >
+                    WhatsApp
+                  </button>
+
+                  <button
+                    onClick={() => setActiveEnquiryId(product.id)}
+                    className="flex-1 border border-[#d4af37] text-[#d4af37] text-xs uppercase tracking-widest px-4 py-2 rounded-lg"
+                  >
+                    Email
                   </button>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

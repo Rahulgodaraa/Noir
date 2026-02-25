@@ -87,9 +87,14 @@ export default function ProductTrain() {
 }
 
 const PRODUCTS = [
-  { title: "Signature Night", img: "/images/signature-night.png" },
-  { title: "Cool Wave", img: "/images/bottle-blue.png" },
-  { title: "Classic Blue", img: "/images/man.png" },
-  { title: "Noir", img: "/images/noir-perfume.png" },
-  { title: "Noir", img: "/images/noir-perfume.png" },
+  { title: "Sabaya", img: "/new/sabya.png" },
+  { title: "Seduction", img: "/new/4.png" },
+  { title: "Ehsaas", img: "/new/6.jpeg" },
+  { title: "The Man", img: "/new/1.jpeg" },
+  { title: "Boss", img: "/new/10.jpeg" },
+  { title: "Wanted", img: "/new/8.jpeg" },
+  { title: "Cool Breeze", img: "/new/3.png" },
+  { title: "Polo", img: "/new/7.jpeg" },
+  { title: "Cool Wave", img: "/new/2.jpeg" },
+  { title: "Swag", img: "/new/12.jpeg" },
 ];

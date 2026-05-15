@@ -1,134 +1,95 @@
 @import "tailwindcss";
 
+:root {
+  --background: #0A0A0A;
+  --foreground: #FFFFFF;
+  --accent: #D4AF37;
+  --accent-muted: rgba(212, 175, 55, 0.2);
+  --border: rgba(255, 255, 255, 0.1);
+  --text-muted: #A0A0A0;
+}
+
 html {
   scroll-behavior: auto !important;
-}
-
-
-
-
-/* DEFAULT (LIGHT MODE) */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-
-  --accent: #b8964e; /* softer gold */
-  --border: #e5e5e5;
-}
-
-:root {
-  --hero-mobile-bg-light: url("/images/Logo.png");
-  --hero-mobile-bg-dark: url("/images/white-logo.png");
-}
-
-/* Desktop background */
-@media (min-width: 759px) {
-  :root {
-    --hero-mobile-bg-light: url("/images/hero-bg.png");
-    --hero-mobile-bg-dark: url("/images/hero-bg.png");
-  }
-}
-
-/* DARK MODE */
-[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-
-  --accent: #d4af37; /* noir gold */
-  --border: #222;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  transition: background 0.4s ease, color 0.4s ease;
+  font-family: var(--font-sans), sans-serif;
+  overflow-x: hidden;
 }
 
-/* Utility helpers (optional but powerful) */
-.bg-theme {
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif), serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
   background: var(--background);
 }
-
-.text-theme {
-  color: var(--foreground);
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
-.border-theme {
-  border-color: var(--border);
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
 }
 
-
-/* 🔍 Search + Tabs Row */
-.products-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 3rem;
+.glass-gold {
+  background: rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--accent-muted);
 }
 
-/* Search */
-.products-search {
-  flex: 1;
-  max-width: 360px;
+/* Typography Utilities */
+.tracking-widest-xl {
+  letter-spacing: 0.3em;
 }
 
-.products-search input {
-  width: 100%;
-  background: #000;
-  border: 1px solid #333;
-  padding: 12px 14px;
-  font-size: 14px;
-  color: #fff;
+.text-gold {
+  color: var(--accent);
 }
 
-.products-search input:focus {
-  outline: none;
-  border-color: #d4af37;
+/* Animations */
+.reveal-text {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 
-/* Tabs */
-.filter-tabs {
-  display: flex;
-  gap: 1.2rem;
+.noir-gradient {
+  background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
 }
 
-.filter-tab {
-  background: transparent;
-  border: 1px solid #444;
-  color: #aaa;
-  padding: 10px 18px;
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.25s ease;
+/* Button Styles */
+.btn-gold {
+  @apply px-10 py-4 bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] bg-[length:200%_auto] text-black font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-right transition-all duration-700 shadow-[0_10px_30px_rgba(212,175,55,0.2)];
 }
 
-.filter-tab:hover {
-  border-color: #d4af37;
-  color: #d4af37;
+.btn-outline {
+  @apply px-10 py-4 border border-white/10 text-white font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all duration-500;
 }
 
-.filter-tab.active {
-  border-color: #d4af37;
-  color: #d4af37;
+/* Cart Drawer */
+.cart-drawer-shadow {
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
 }
 
-/* 📱 Mobile */
-@media (max-width: 768px) {
-  .products-filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+/* Custom Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
 
-  .filter-tabs {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .products-search {
-    max-width: 100%;
-  }
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

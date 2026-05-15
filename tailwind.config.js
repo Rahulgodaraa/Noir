@@ -6,7 +6,11 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}", // safe to keep
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionTimingFunction: {
+        'expo': 'cubic-bezier(0.87, 0, 0.13, 1)',
+      }
+    },
   },
   plugins: [],
 };

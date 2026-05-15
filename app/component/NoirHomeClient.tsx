@@ -1,212 +1,218 @@
-// "use client";
-
-// import { useLayoutEffect, useRef } from "react";
-// import Hero from "./component/Hero";
-// import AnimatedSection from "./component/AnimatedSection";
-// import ProductShowcase from "./component/ProductShowcase";
-// import NoirHomePreview from "./component/NoirHomePreview";
-// import Image from "next/image";
-// import { useTheme } from "./context/ThemeContext";
-// import SectionDivider from "./component/shared/SectionDivider";
-
-// export default function Page() {
-//   const { theme } = useTheme();
-//   const universeRef = useRef<HTMLDivElement>(null);
-//   const textRef = useRef<HTMLDivElement>(null);
-
-// useLayoutEffect(() => {
-//   let ctx: any;
-
-//   (async () => {
-//     const gsapModule = await import("gsap");
-//     const stModule = await import("gsap/ScrollTrigger");
-//     const gsap = gsapModule.gsap;
-//     const ScrollTrigger = stModule.ScrollTrigger;
-    
-//     gsap.registerPlugin(ScrollTrigger);
-
-//     ctx = gsap.context(() => {
-//       if (textRef.current) {
-//         gsap.fromTo(
-//           textRef.current,
-//           { opacity: 0, y: 30 },
-//           {
-//             opacity: 1,
-//             y: 0,
-//             immediateRender: false, 
-//             scrollTrigger: {
-//               trigger: universeRef.current,
-//               start: "top 80%",
-//               end: "bottom 20%",
-//               scrub: true,
-//               // Adding markers: true during dev can help you see 
-//               // if the start/end positions are jumping
-//             },
-//           }
-//         );
-//       }
-//     });
-
-//     // CRITICAL: Refresh must happen AFTER the context/animations are created
-//     ScrollTrigger.refresh();
-//   })();
-
-//   return () => ctx?.revert();
-// }, []);
-//   return (
-//     <main className="min-h-screen overflow-x-hidden bg-theme text-theme">
-
-//       {/* 1. Hero */}
-//       <Hero />
-
-//       <AnimatedSection />
-
-//       {/* 2. Fragrances */}
-//       <section className="py-2">
-//         <ProductShowcase />
-//       </section>
-
-//       {/* 3. Product Universe */}
-//       <section
-//         ref={universeRef}
-//         className="max-w-6xl mx-auto mt-20 px-6 py-14 flex flex-col md:flex-row items-center gap-16 md:gap-60"
-//       >
-//         {/* ✅ Desktop Logo Only */}
-//         <div className="hidden md:flex flex-shrink-0">
-//           <Image
-//             alt="noir"
-//             width={200}
-//             height={200}
-//             src={
-//               theme === "dark"
-//                 ? "/images/white-logo.png"
-//                 : "/images/Logo.png"
-//             }
-//           />
-//         </div>
-
-//         {/* Text */}
-//         <div ref={textRef} className="text-center md:text-left">
-//           {/* ✅ Mobile-only divider */}
-//           <div className="block md:hidden mb-6">
-//             <SectionDivider title="NOIR UNIVERSE" />
-//           </div>
-
-//           <h2
-//             className="text-3xl font-serif mb-4"
-//             style={{ color: "var(--accent)" }}
-//           >
-//             The Noir Universe
-//           </h2>
-
-//           <p className="max-w-2xl text-lg opacity-80">
-//             From signature fragrances to refined home candles, Noir Essence
-//             creates sensory experiences designed to elevate both presence and space.
-//           </p>
-//         </div>
-//       </section>
-
-//       {/* 4. Candles */}
-//       <section
-//         className="py-12"
-//         style={{
-//           background: "color-mix(in srgb, var(--background) 95%, black)",
-//         }}
-//       >
-//         <NoirHomePreview />
-//       </section>
-
-//     </main>
-//   );
-// }
-
-
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
-import { useTheme } from "../context/ThemeContext";
+import { useRef } from "react";
+import Link from "next/link";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import Hero from "./Hero";
-import AnimatedSection from "./AnimatedSection";
-import ProductShowcase from "./ProductShowcase";
 import Image from "next/image";
-import SectionDivider from "./shared/SectionDivider";
-import NoirHomePreview from "./NoirHomePreview";
+import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
+
+const PERFUMES_PREVIEW = [
+  { id: 1,  name: "Sabaya",    category: "Extrait De Parfum", price: "₹699", image: "/new/sabya.png" },
+  { id: 2,  name: "Seduction", category: "Extrait De Parfum", price: "₹599", image: "/new/4.png" },
+  { id: 10, name: "Swag",      category: "Extrait De Parfum", price: "₹899", image: "/new/12.jpeg" },
+];
+
+const CANDLES_PREVIEW = [
+  { id: 12, name: "Matte Luxe", category: "Soy Wax Candle", price: "₹649", image: "/images/candle-2.jpg" },
+  { id: 11, name: "Glass Noir", category: "Gel Wax Candle",  price: "₹599", image: "/images/candle-1.jpg" },
+];
 
 export default function NoirHomeClient() {
-  const { theme } = useTheme();
-  const universeRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
-  useLayoutEffect(() => {
-    let ctx: any;
-    (async () => {
-      const { gsap } = await import("gsap");
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-      gsap.registerPlugin(ScrollTrigger);
+  useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return;
 
-      ctx = gsap.context(() => {
-        if (textRef.current) {
-          gsap.fromTo(textRef.current,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1, y: 0,
-              scrollTrigger: {
-                trigger: universeRef.current,
-                start: "top 80%",
-                end: "bottom 20%",
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
-            }
-          );
+    gsap.utils.toArray<HTMLElement>(".fade-up").forEach((el) => {
+      gsap.fromTo(el,
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 1, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
         }
-      });
-      ScrollTrigger.refresh();
-    })();
-    return () => ctx?.revert();
-  }, []);
+      );
+    });
+  }, { scope: containerRef });
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-theme text-theme">
+    <main ref={containerRef} className="bg-[#0A0A0A] text-white">
       <Hero />
-      <AnimatedSection />
-      
-      {/* Wrap sections in semantic HTML for SEO */}
-      <section className="py-2" aria-label="Product Showcase">
-        <ProductShowcase />
-      </section>
 
-      <section
-        ref={universeRef}
-        className="max-w-6xl mx-auto mt-20 px-6 py-14 flex flex-col md:flex-row items-center gap-16 md:gap-60"
-      >
-        <div className="hidden md:flex flex-shrink-0">
-          <Image
-            alt="Noir Essence Brand Logo"
-            width={200}
-            height={200}
-            src={theme === "dark" ? "/images/white-logo.png" : "/images/Logo.png"}
-          />
-        </div>
-
-        <div ref={textRef} className="text-center md:text-left">
-          <div className="block md:hidden mb-6">
-            <SectionDivider title="NOIR UNIVERSE" />
+      {/* ── Section 1: Vision ── */}
+      <section className="py-20 md:py-36 overflow-x-hidden">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-12">
+          <div className="fade-up mb-10 md:mb-16">
+            <span className="text-[#D4AF37] tracking-[0.4em] text-[9px] uppercase font-bold border-l-2 border-[#D4AF37] pl-4 block">
+              {t.home.visionLabel}
+            </span>
           </div>
-          <h2 className="text-3xl font-serif mb-4" style={{ color: "var(--accent)" }}>
-            The Noir Universe
-          </h2>
-          <p className="max-w-2xl text-lg opacity-80">
-            From signature fragrances to refined home candles, Noir Essence
-            creates sensory experiences designed to elevate both presence and space.
-          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 md:gap-24 items-start">
+            <div className="space-y-10 md:space-y-14">
+              <h2 className="fade-up font-serif text-4xl md:text-6xl lg:text-7xl font-light leading-none tracking-tighter">
+                {t.home.visionHeading1}<br />
+                <em className="text-[#D4AF37] not-italic">{t.home.visionHeading2}</em>.
+              </h2>
+
+              <p className="fade-up text-white/55 text-base md:text-lg leading-relaxed font-light max-w-md">
+                {t.home.visionQuote}
+              </p>
+
+              <div className="fade-up grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8 border-t border-white/10">
+                {([
+                  { title: t.home.pillar1Title, desc: t.home.pillar1Desc },
+                  { title: t.home.pillar2Title, desc: t.home.pillar2Desc },
+                ] as const).map((item, i) => (
+                  <div key={i} className="space-y-3">
+                    <span className="text-[#D4AF37] text-[9px] uppercase tracking-[0.35em] font-bold">0{i + 1}</span>
+                    <h4 className="text-white text-base md:text-lg font-serif leading-snug">{item.title}</h4>
+                    <p className="text-white/40 text-sm leading-relaxed font-light">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="fade-up relative w-full max-w-[420px] mx-auto lg:mx-0">
+              <div className="absolute top-8 left-8 right-0 bottom-0 bg-[#111] border border-[#D4AF37]/10 overflow-hidden">
+                <Image src="/images/noir-pouch.png" alt="Noir Pouch" fill
+                  className="object-cover opacity-50" sizes="(max-width: 768px) 80vw, 40vw" />
+              </div>
+              <div className="relative aspect-[3/4] overflow-hidden border border-white/5">
+                <Image src="/images/noir-pouch.png" alt="Noir Essence Brand" fill
+                  className="object-cover" sizes="(max-width: 768px) 80vw, 40vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/70 to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <p className="font-serif text-2xl text-white/90 leading-snug">{t.home.imageCaption}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="py-12" style={{ background: "color-mix(in srgb, var(--background) 95%, black)" }}>
-        <NoirHomePreview />
+      {/* ── Section 2: Fragrances ── */}
+      <section className="py-20 md:py-36 bg-[#080808] border-y border-white/5">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-12">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-5 mb-14 md:mb-20">
+            <div className="fade-up space-y-3">
+              <span className="text-[#D4AF37] tracking-[0.4em] text-[9px] uppercase font-bold block">{t.home.fragranceLabel}</span>
+              <h2 className="font-serif text-4xl md:text-6xl font-light tracking-tighter">{t.home.fragranceHeading}</h2>
+            </div>
+            <Link href="/products?category=perfume"
+              className="fade-up flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-[#D4AF37] transition-colors duration-500 group">
+              {t.home.viewAllFragrances}
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
+            {PERFUMES_PREVIEW.map((product) => (
+              <Link key={product.id} href={`/products/${product.id}`} className="fade-up group block">
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#111] mb-4">
+                  <Image src={product.image} alt={product.name} fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 640px) 50vw, 33vw" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <span className="text-[#D4AF37] text-[9px] font-bold tracking-widest">{product.price}</span>
+                  </div>
+                </div>
+                <div className="space-y-1 px-1">
+                  <p className="text-[8px] uppercase tracking-[0.3em] text-[#D4AF37] font-bold">{product.category}</p>
+                  <h3 className="font-serif text-xl md:text-2xl group-hover:text-[#D4AF37] transition-colors duration-500">{product.name}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Candles ── */}
+      <section className="py-20 md:py-36">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 md:gap-24 items-center">
+            <div className="space-y-8 md:space-y-10">
+              <div className="fade-up space-y-4">
+                <span className="text-[#D4AF37] tracking-[0.4em] text-[9px] uppercase font-bold border-l-2 border-[#D4AF37] pl-4 block">
+                  {t.home.candleLabel}
+                </span>
+                <h2 className="font-serif text-4xl md:text-6xl font-light tracking-tighter leading-none">
+                  {t.home.candleHeading1}<br />{t.home.candleHeading2}
+                </h2>
+              </div>
+              <p className="fade-up text-white/55 text-base md:text-lg leading-relaxed font-light max-w-md">
+                {t.home.candleDesc}
+              </p>
+              <div className="fade-up grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
+                {([
+                  { label: t.home.soyLabel, desc: t.home.soyDesc },
+                  { label: t.home.gelLabel, desc: t.home.gelDesc },
+                ] as const).map((item, i) => (
+                  <div key={i} className="space-y-2">
+                    <h4 className="text-white text-sm md:text-base font-serif">{item.label}</h4>
+                    <p className="text-white/40 text-xs md:text-sm leading-relaxed font-light">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <Link href="/products?category=candle"
+                className="fade-up inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.35em] text-[#D4AF37] border border-[#D4AF37]/30 px-8 py-4 hover:bg-[#D4AF37]/5 hover:border-[#D4AF37] transition-all duration-500 group">
+                {t.home.viewAllCandles}
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="fade-up grid grid-cols-2 gap-4 md:gap-6">
+              {CANDLES_PREVIEW.map((candle, i) => (
+                <Link key={candle.id} href={`/products/${candle.id}`} className="group block">
+                  <div className={`relative overflow-hidden bg-[#111] mb-3 ${i === 0 ? "aspect-[2/3] translate-y-6" : "aspect-[2/3]"}`}>
+                    <Image src={candle.image} alt={candle.name} fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 768px) 45vw, 20vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <p className="text-[8px] uppercase tracking-widest text-[#D4AF37] mb-1">{candle.category}</p>
+                      <p className="font-serif text-lg text-white leading-tight">{candle.name}</p>
+                    </div>
+                  </div>
+                  <p className="text-[9px] uppercase tracking-widest text-white/30 px-1">{candle.price}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 4: Final CTA ── */}
+      <section className="py-28 md:py-44 relative overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 pointer-events-none">
+          <Image src="/images/signature-night.jpg" alt="" fill className="object-cover opacity-[0.04]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-transparent to-[#0A0A0A]" />
+        </div>
+        <div className="relative z-10 max-w-2xl mx-auto px-5 text-center space-y-8 md:space-y-12">
+          <span className="text-[8px] md:text-[9px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold border border-[#D4AF37]/20 px-5 py-2 rounded-full inline-block">
+            {t.home.ctaLabel}
+          </span>
+          <h2 className="fade-up font-serif text-5xl md:text-7xl font-light tracking-tighter leading-none">
+            {t.home.ctaHeading1}<br />
+            <em className="text-[#D4AF37] not-italic">{t.home.ctaHeading2}</em>
+          </h2>
+          <p className="fade-up text-white/40 text-sm md:text-lg leading-relaxed font-light italic">
+            "{t.home.ctaQuote}"
+          </p>
+          <Link href="/products"
+            className="fade-up inline-flex items-center gap-3 text-[#D4AF37] tracking-[0.4em] text-[10px] uppercase font-bold py-4 px-10 border border-[#D4AF37]/30 hover:border-[#D4AF37] hover:bg-[#D4AF37]/5 transition-all duration-500 group">
+            {t.home.ctaButton}
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </section>
     </main>
   );
 }
-

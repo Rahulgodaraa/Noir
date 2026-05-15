@@ -2,200 +2,34 @@
 
 import { useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { openWhatsApp } from "@/app/component/openWhatsApp";
-import { useTheme } from "../context/ThemeContext";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import Image from "next/image";
-
-// Define a Product interface for strict typing
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  image: string;
-  price?: number;
-  quantity?: string;
-  size?: string;
-  bestFor?: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  image: string;
-  price?: number;
-  quantity?: string;
-  size?: string;
-  bestFor?: string;
-}
-
-const PRODUCTS: Product[] = [
-  // ================= PERFUMES =================
-  {
-    id: 1,
-    name: "Sabaya",
-    category: "perfume",
-    description: "Warm, graceful and timeless with rich yet soft elegance.",
-    image: "/new/sabya.png",
-    price: 699,
-    size: "30ml",
-    bestFor: "Evenings, parties, formal dinners",
-  },
-  {
-    id: 2,
-    name: "Seduction",
-    category: "perfume",
-    description: "Bold, intense and irresistibly magnetic.",
-    image: "/new/4.png",
-    price: 599,
-    size: "30ml",
-    bestFor: "Date nights, romantic evenings",
-  },
-  {
-    id: 3,
-    name: "Ehsaas",
-    category: "perfume",
-    description: "Delicate, soulful and emotionally captivating.",
-    image: "/new/6.jpeg",
-    price: 599,
-    size: "30ml",
-    bestFor: "Weddings, celebrations, special occasions",
-  },
-  {
-    id: 4,
-    name: "The Man",
-    category: "perfume",
-    description: "Strong, refined and commanding modern masculinity.",
-    image: "/new/1.jpeg",
-    price: 899,
-    size: "50ml",
-    bestFor: "Office, business meetings, leadership presence",
-  },
-  {
-    id: 5,
-    name: "Boss",
-    category: "perfume",
-    description: "Sharp, bold and unapologetically powerful.",
-    image: "/new/10.jpeg",
-    price: 899,
-    size: "50ml",
-    bestFor: "Professional settings, confident personalities",
-  },
-  {
-    id: 6,
-    name: "Wanted",
-    category: "perfume",
-    description: "Mysterious, daring and addictive.",
-    image: "/new/8.jpeg",
-    price: 599,
-    size: "30ml",
-    bestFor: "Night outs, celebrations, bold statements",
-  },
-  {
-    id: 7,
-    name: "Cool Breeze",
-    category: "perfume",
-    description: "Fresh, calm and effortlessly soothing.",
-    image: "/new/3.png",
-    price: 699,
-    size: "30ml",
-    bestFor: "Daily wear, brunches, summer days",
-  },
-  {
-    id: 8,
-    name: "Polo",
-    category: "perfume",
-    description: "Classic, confident and sophisticated.",
-    image: "/new/7.jpeg",
-    price: 599,
-    size: "30ml",
-    bestFor: "Afternoon gatherings, casual elegance",
-  },
-  {
-    id: 9,
-    name: "Cool Wave",
-    category: "perfume",
-    description: "Crisp, elemental and refreshing.",
-    image: "/new/2.jpeg",
-    price: 899,
-    size: "50ml",
-    bestFor: "Daytime professional wear, summer evenings",
-  },
-  {
-    id: 10,
-    name: "Swag",
-    category: "perfume",
-    description: "Bold, charismatic and unapologetic.",
-    image: "/new/12.jpeg",
-    price: 899,
-    size: "50ml",
-    bestFor: "Nightlife, special events, strong presence",
-  },
-
-  // ================= CANDLES =================
-  {
-    id: 11,
-    name: "Classic Glass Candle",
-    category: "candle",
-    description:
-      "Simple • Elegant • Timeless. Crystal-clear premium glass jar.",
-    image: "/images/candle-crystal1.jpg",
-    price: 599,
-    quantity: "180 ml",
-  },
-  {
-    id: 12,
-    name: "Matte Luxe Candle",
-    category: "candle",
-    description: "Minimalist • Modern • Soft-touch finish in elegant colours.",
-    image: "/images/candle-matte.jpg",
-    price: 649,
-    quantity: "200 ml",
-  },
-  {
-    id: 13,
-    name: "Diamond Cut Crystal Candle",
-    category: "candle",
-    description:
-      "Royal cut crystal jar with sculpted lid and premium detailing.",
-    image: "/images/candle-crystal1.jpg",
-    price: 499,
-    quantity: "120 ml",
-  },
-];
-
-const TABS = [
-  // { label: "All", value: "all" },
-  { label: "Perfumes", value: "perfume" },
-  { label: "Candles", value: "candle" },
-];
+import { Search, MessageSquare } from "lucide-react";
+import { PRODUCTS } from "@/app/data/products";
+import { useCart } from "@/app/hooks/useCart";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 function ProductsContent() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [selectedWaxType, setSelectedWaxType] = useState<{
-    [key: number]: "gel" | "soya";
-  }>({});
+  const [selectedWaxType, setSelectedWaxType] = useState<{[key: number]: "gel" | "soya"}>({});
+  const [selectedFragrance, setSelectedFragrance] = useState<{[key: number]: string}>({});
 
-  const [selectedFragrance, setSelectedFragrance] = useState<{
-    [key: number]: string;
-  }>({});
-
+  const { addToCart } = useCart();
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   const query = searchParams.get("q")?.toLowerCase() || "";
   const category = searchParams.get("category") || "perfume";
 
-  const [activeEnquiryId, setActiveEnquiryId] = useState<number | null>(null);
-  const [contact, setContact] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  useGSAP(() => {
+    gsap.from(".product-card", {
+      y: 30, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out",
+    });
+  }, { scope: containerRef, dependencies: [category, query] });
 
   const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -203,234 +37,128 @@ function ProductsContent() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  const shuffledCategory = (arr: Product[]) => {
-    const perfumes = arr.filter((item) => item.category === "perfume");
-    const candles = arr.filter((item) => item.category === "candle");
-
-    const result: Product[] = [];
-    let p = 0;
-    let c = 0;
-
-    while (p < perfumes.length || c < candles.length) {
-      for (let i = 0; i < 2 && p < perfumes.length; i++) {
-        result.push(perfumes[p]);
-        p++;
-      }
-      for (let i = 0; i < 2 && c < candles.length; i++) {
-        result.push(candles[c]);
-        c++;
-      }
-    }
-    return result;
-  };
-
-  const filtered = PRODUCTS.filter((p) => {
+  const filteredProducts = PRODUCTS.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(query);
     const matchCategory = category === "all" ? true : p.category === category;
     return matchSearch && matchCategory;
   });
 
-  const filteredProducts =
-    category === "all" ? shuffledCategory(filtered) : filtered;
-
-  const sendEnquiryEmail = async (productName: string) => {
-    if (!contact.trim()) return alert("Please enter email or phone number");
-    setSending(true);
-    try {
-      const res = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "Product Enquiry",
-          email: contact.includes("@") ? contact : "no-reply@website.com",
-          message: `Product: ${productName}\nCustomer Contact: ${contact}`,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      setSent(true);
-      setTimeout(() => {
-        setSent(false);
-        setActiveEnquiryId(null);
-        setContact("");
-      }, 2000);
-    } catch {
-      alert("Failed to send enquiry");
-    } finally {
-      setSending(false);
-    }
-  };
+  const TABS = [
+    { label: t.products.fragrances, value: "perfume" },
+    { label: t.products.homeCandles, value: "candle" },
+  ];
 
   return (
-    <main
-      ref={containerRef}
-      className={`min-h-screen px-6 py-24 transition-colors duration-300 ${
-        isDark ? "bg-black text-white" : "bg-white text-black"
-      }`}
-    >
-      <div
-        className={`sticky top-0 z-30 pb-10 ${isDark ? "bg-black" : "bg-white"}`}
-      >
-        <input
-          value={query}
-          onChange={(e) => updateParam("q", e.target.value)}
-          placeholder="Search products..."
-          className={`w-full max-w-md mx-auto block mb-8 px-4 py-3 text-sm transition focus:outline-none ${
-            isDark
-              ? "bg-black border border-[#333] text-white"
-              : "bg-white border border-gray-300 text-black"
-          }`}
-        />
-        <div className="flex pt-1 gap-6 justify-center">
-          {TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => updateParam("category", tab.value)}
-              className={`text-xs uppercase tracking-widest px-4 py-2 border transition ${
-                category === tab.value
-                  ? "border-[#d4af37] text-[#d4af37]"
-                  : isDark
-                    ? "border-gray-600 text-gray-400"
-                    : "border-gray-300 text-gray-500"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+    <main ref={containerRef} className="min-h-screen bg-[#0A0A0A] text-white pt-32 pb-24 px-6 md:px-12">
+      {/* Header */}
+      <div className="max-w-[1400px] mx-auto mb-20 text-center">
+        <span className="text-[#D4AF37] tracking-[0.4em] text-[10px] uppercase font-bold mb-4 block">{t.products.label}</span>
+        <h1 className="font-serif text-4xl md:text-7xl mb-12">{t.products.heading}</h1>
+
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 border-y border-white/5 py-10">
+          <div className="relative w-full max-w-md group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#D4AF37] transition-colors" />
+            <input
+              value={query}
+              onChange={(e) => updateParam("q", e.target.value)}
+              placeholder={t.products.searchPlaceholder}
+              className="w-full bg-white/5 border border-white/10 px-12 py-4 text-sm focus:outline-none focus:border-[#D4AF37] transition-all tracking-wide"
+            />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            {TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => updateParam("category", tab.value)}
+                className={`text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-medium transition-all relative py-2 ${
+                  category === tab.value ? "text-[#D4AF37]" : "text-white/40 hover:text-white"
+                }`}
+              >
+                {tab.label}
+                {category === tab.value && (
+                  <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37]" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto grid gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {filteredProducts.map((product, index) => {
+      {/* Grid */}
+      <div className="max-w-[1400px] mx-auto grid gap-x-8 gap-y-20 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {filteredProducts.map((product) => {
           const waxType = selectedWaxType[product.id] || "gel";
-          const finalPrice =
-            product.category === "candle"
-              ? waxType === "soya"
-                ? (product.price ?? 599) - 75
-                : (product.price ?? 599)
-              : (product.price ?? 799);
+          const finalPrice = product.category === "candle"
+            ? waxType === "soya" ? (product.price ?? 599) - 75 : (product.price ?? 599)
+            : (product.price ?? 799);
 
           return (
-            <div
-              key={product.id}
-              ref={(el) => {
-                cardsRef.current[index] = el;
-              }}
-              className={`group border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-                isDark
-                  ? "border-[#222] bg-[#0b0b0b] hover:border-[#d4af37]"
-                  : "border-gray-200 bg-white hover:border-[#d4af37]"
-              }`}
-            >
-              {/* Image */}
-              <div className="relative h-72 bg-gradient-to-b from-black to-[#111] flex items-center justify-center">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
+            <div key={product.id} className="product-card group flex flex-col">
+              <Link href={`/products/${product.id}`} className="relative aspect-[4/5] bg-[#111] overflow-hidden mb-8 block cursor-pointer">
+                <Image src={product.image} alt={product.name} fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute top-6 right-6 bg-[#0A0A0A]/80 backdrop-blur-md border border-white/10 px-3 py-1">
+                  <span className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-bold">₹{finalPrice}</span>
+                </div>
+              </Link>
 
-              <div className="p-6 space-y-4">
-                {/* Name */}
-                <h3 className="text-xl font-serif text-[#d4af37] tracking-wide">
-                  {product.name}
-                </h3>
-
-                {/* Perfume Badge */}
-                {product.category === "perfume" && product.size && (
-                  <span className="inline-block text-[10px] uppercase tracking-widest border border-[#d4af37] text-[#d4af37] px-2 py-1 rounded">
-                    {product.size} Eau De Parfum
+              <div className="flex-1 flex flex-col space-y-4 px-2">
+                <div>
+                  <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-white/40 mb-2 block">
+                    {product.category === 'perfume'
+                      ? `${product.size} ${t.products.extraitDeParfum}`
+                      : `${product.quantity} ${t.products.soyWax}`}
                   </span>
-                )}
+                  <Link href={`/products/${product.id}`}>
+                    <h3 className="font-serif text-3xl group-hover:text-[#D4AF37] transition-colors cursor-pointer">{product.name}</h3>
+                  </Link>
+                </div>
 
-                {/* Description */}
-                <p
-                  className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
-                >
+                <p className="text-[11px] md:text-xs text-white/50 leading-relaxed font-light line-clamp-2">
                   {product.description}
                 </p>
 
-                {/* Best For */}
                 {product.category === "perfume" && product.bestFor && (
-                  <p className="text-xs text-gray-500">
-                    <span className="text-[#d4af37] font-semibold">
-                      Best For:
-                    </span>{" "}
-                    {product.bestFor}
+                  <p className="text-[9px] md:text-[10px] text-white/30 uppercase tracking-widest leading-relaxed italic">
+                    {t.products.bestFor}: {product.bestFor}
                   </p>
                 )}
 
-                {/* Candle Options */}
                 {product.category === "candle" && (
-                  <>
-                    <p className="text-xs text-gray-500">
-                      Quantity: {product.quantity}
-                    </p>
-
+                  <div className="flex gap-4 pt-2">
                     <select
                       value={waxType}
-                      onChange={(e) =>
-                        setSelectedWaxType({
-                          ...selectedWaxType,
-                          [product.id]: e.target.value as "gel" | "soya",
-                        })
-                      }
-                      className="w-full px-3 py-2 text-xs rounded-md border border-gray-300 bg-white text-black"
+                      onChange={(e) => setSelectedWaxType({...selectedWaxType, [product.id]: e.target.value as "gel" | "soya"})}
+                      className="flex-1 bg-white/5 border border-white/10 text-[9px] md:text-[10px] uppercase tracking-widest px-3 md:px-4 py-2 focus:outline-none focus:border-[#D4AF37]"
                     >
-                      <option value="gel">Gel Wax</option>
-                      <option value="soya">Soya Wax</option>
+                      <option value="gel">{t.products.gelWax}</option>
+                      <option value="soya">{t.products.soyaWax}</option>
                     </select>
-
                     <select
-                      onChange={(e) =>
-                        setSelectedFragrance({
-                          ...selectedFragrance,
-                          [product.id]: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 text-xs rounded-md border border-gray-300 bg-white text-black"
+                      onChange={(e) => setSelectedFragrance({...selectedFragrance, [product.id]: e.target.value})}
+                      className="flex-1 bg-white/5 border border-white/10 text-[9px] md:text-[10px] uppercase tracking-widest px-3 md:px-4 py-2 focus:outline-none focus:border-[#D4AF37]"
                     >
-                      <option value="">Choose Fragrance</option>
-                      <option>Sandalwood</option>
-                      <option>Melon</option>
-                      <option>Peppermint</option>
-                      <option>Lemon</option>
-                      <option>Orange</option>
-                      <option>Rose</option>
-                      <option>Lavender</option>
+                      <option value="">{t.products.fragrance}</option>
+                      {["Sandalwood", "Rose", "Lavender", "Lemon"].map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
-                  </>
+                  </div>
                 )}
 
-                {/* Price */}
-                <div className="pt-4 border-t border-gray-800">
-                  <p className="text-xs uppercase tracking-widest text-gray-400">
-                    Price
-                  </p>
-                  <p className="text-2xl font-bold text-[#d4af37]">
-                    ₹{finalPrice}
-                  </p>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex gap-3 pt-3">
+                <div className="pt-6 flex flex-col sm:flex-row gap-4">
                   <button
-                    onClick={() =>
-                      openWhatsApp(
-                        product.name,
-                        `Interested in ${product.name} - ₹${finalPrice}`,
-                      )
-                    }
-                    className="flex-1 bg-[#25D366] text-white text-xs uppercase tracking-widest px-4 py-2 rounded-lg"
+                    onClick={() => addToCart(product, { price: finalPrice, wax: waxType, fragrance: selectedFragrance[product.id] })}
+                    className="flex-1 btn-gold py-3 text-[10px]"
                   >
-                    WhatsApp
+                    {t.products.addToBag}
                   </button>
-
                   <button
-                    onClick={() => setActiveEnquiryId(product.id)}
-                    className="flex-1 border border-[#d4af37] text-[#d4af37] text-xs uppercase tracking-widest px-4 py-2 rounded-lg"
+                    onClick={() => openWhatsApp(product.name, `Interested in ${product.name} - ₹${finalPrice}`)}
+                    className="flex-1 btn-outline py-3 flex items-center justify-center gap-3 text-[10px]"
                   >
-                    Email
+                    <MessageSquare className="w-3 h-3" />
+                    {t.products.whatsapp}
                   </button>
                 </div>
               </div>
@@ -442,10 +170,13 @@ function ProductsContent() {
   );
 }
 
-// 🔑 IMPORTANT: useSearchParams() requires a Suspense boundary for Next.js builds
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
       <ProductsContent />
     </Suspense>
   );

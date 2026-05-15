@@ -1,117 +1,201 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "../context/ThemeContext";
-import Image from "next/image";
+import { ShoppingBag, Menu, X, Globe } from "lucide-react";
+import CartDrawer from "./CartDrawer";
+import { useLanguage, LANGUAGES, type Language } from "@/app/context/LanguageContext";
+import { useCart } from "@/app/hooks/useCart";
 
 export default function NavbarClient() {
-  const navRef = useRef<HTMLElement | null>(null);
-  const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false); // 🆕 Track mobile menu state
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+  const { cart } = useCart();
 
   useEffect(() => {
     setMounted(true);
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
-  useLayoutEffect(() => {
-    if (!mounted) return;
-
-    let ctx: any;
-    (async () => {
-      const gsapModule = await import("gsap");
-      const gsap = gsapModule.gsap;
-
-      ctx = gsap.context(() => {
-        const tl = gsap.timeline({ delay: 0.1 });
-        tl.from(".nav-logo", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" })
-          .from(".nav-link", { y: -20, opacity: 0, duration: 0.6, ease: "power3.out", stagger: 0.12 }, "-=0.4")
-          .from(".nav-cta", { y: -20, opacity: 0, duration: 0.6, ease: "power3.out" }, "-=0.3");
-      }, navRef);
-    })();
-
-    return () => ctx?.revert();
-  }, [mounted]);
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isMobileMenuOpen]);
 
   if (!mounted) return null;
 
-  const isDark = theme === "dark";
+  const navLinks = [
+    { key: "atelier",     path: "/" },
+    { key: "collections", path: "/products" },
+    { key: "theHouse",    path: "/the-house" },
+  ];
+
+  const currentLang = LANGUAGES.find(l => l.code === language)!;
+  const cartCount = cart.length;
 
   return (
-    <header
-      ref={navRef}
-      className="fixed top-0 left-0 w-full z-50 backdrop-blur-md transition-colors border-b"
-      style={{
-        background: "color-mix(in srgb, var(--background) 85%, transparent)",
-        borderColor: "color-mix(in srgb, var(--border) 20%, transparent)",
-      }}
-    >
-      <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo - Always visible and clickable to go Home */}
-        <Link href="/" className="nav-logo block">
-          <Image
-            alt="Noir"
-            width={80}
-            height={32}
-            src={isDark ? "/images/white-logo.png" : "/images/Logo.png"}
-            priority
-          />
-        </Link>
-
-        {/* Desktop Links (Hidden on Mobile) */}
-        <ul className="hidden md:flex items-center gap-10 text-sm tracking-widest uppercase">
-          <li className="nav-link"><Link href="/" className="hover:text-[#d4af37] transition">Home</Link></li>
-          <li className="nav-link"><Link href="/products" className="hover:text-[#d4af37] transition">Fragrances</Link></li>
-          <li className="nav-link"><Link href="/contact" className="hover:text-[#d4af37] transition">Contact</Link></li>
-        </ul>
-
-        {/* Actions & Mobile Toggle */}
-        <div className="nav-cta flex items-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="text-[10px] uppercase tracking-tighter px-3 py-2 rounded-full border border-gray-500/30 hover:bg-[#d4af37] hover:text-black transition"
-          >
-            {isDark ? "Light" : "Dark"}
-          </button>
-
-          {/* Mobile Menu Toggle Button */}
-          <button 
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col gap-1.5 p-2 z-[60]"
-          >
-            <span className={`h-0.5 w-6 bg-current transition-transform ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`h-0.5 w-6 bg-current transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`h-0.5 w-6 bg-current transition-transform ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-          </button>
-
-          <Link
-            href="/products"
-            className="hidden sm:block text-xs uppercase tracking-widest px-5 py-2 rounded-full bg-[#d4af37] text-black font-bold"
-          >
-            Explore
-          </Link>
-        </div>
-      </nav>
-
-      {/* 🆕 Mobile Menu Overlay */}
-      <div 
-        className={`fixed inset-0 h-screen w-full transition-all duration-500 ease-in-out md:hidden flex flex-col items-center justify-center gap-8 text-2xl font-serif z-[55] ${
-          menuOpen ? "opacity-100 pointer-events-auto backdrop-blur-xl" : "opacity-0 pointer-events-none"
+    <>
+      <header
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+          isScrolled || isMobileMenuOpen
+            ? "py-4 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-white/5"
+            : "py-5 md:py-8 bg-transparent"
         }`}
-        style={{ background: "var(--background)" }}
       >
-        <Link href="/" onClick={() => setMenuOpen(false)} className="hover:text-[#d4af37]">Home</Link>
-        <Link href="/products" onClick={() => setMenuOpen(false)} className="hover:text-[#d4af37]">Fragrances</Link>
-        <Link href="/contact" onClick={() => setMenuOpen(false)} className="hover:text-[#d4af37]">Contact</Link>
-        <Link 
-          href="/products" 
-          onClick={() => setMenuOpen(false)}
-          className="mt-4 text-sm px-8 py-3 bg-[#d4af37] text-black uppercase tracking-widest font-bold rounded-full"
-        >
-          Explore Collection
-        </Link>
+        <nav className="max-w-[1500px] mx-auto px-5 md:px-12 flex items-center justify-between">
+
+          {/* Mobile hamburger */}
+          <button
+            className="lg:hidden p-2 -ml-2 z-50"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen
+              ? <X className="w-5 h-5 text-white" />
+              : <Menu className="w-5 h-5 text-white/70" />
+            }
+          </button>
+
+          {/* Logo */}
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 z-50">
+            <h1 className="font-serif text-base md:text-lg tracking-[0.15em] md:tracking-[0.2em] uppercase text-white hover:text-[#D4AF37] transition-colors duration-500 font-light whitespace-nowrap">
+              Noir Essence
+            </h1>
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2">
+            <ul className="flex items-center gap-12">
+              {navLinks.map((link) => (
+                <li key={link.key}>
+                  <Link
+                    href={link.path}
+                    className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40 hover:text-[#D4AF37] transition-colors duration-500"
+                  >
+                    {t.nav[link.key as keyof typeof t.nav]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right icons */}
+          <div className="flex items-center gap-1 md:gap-3 relative z-50">
+            {/* Language Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="p-2 flex items-center gap-1.5 group"
+                aria-label="Select language"
+              >
+                <Globe className="w-[15px] h-[15px] text-white/50 group-hover:text-[#D4AF37] transition-colors" />
+                <span className="hidden md:block text-[9px] uppercase tracking-[0.2em] text-white/40 group-hover:text-[#D4AF37] transition-colors font-bold">
+                  {currentLang.code.toUpperCase()}
+                </span>
+              </button>
+
+              {/* Dropdown */}
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-[#111] border border-white/10 shadow-2xl z-[101] overflow-hidden">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => { setLanguage(lang.code as Language); setIsLangOpen(false); }}
+                        className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors ${
+                          language === lang.code
+                            ? "bg-[#D4AF37]/10 text-[#D4AF37]"
+                            : "text-white/50 hover:text-white hover:bg-white/5"
+                        }`}
+                        dir={lang.dir}
+                      >
+                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold">{lang.label}</span>
+                        <span className="text-xs opacity-60">{lang.nativeLabel}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Cart */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2"
+              aria-label="Open cart"
+            >
+              <ShoppingBag className="w-[18px] h-[18px] stroke-[1.5] text-white/60 hover:text-[#D4AF37] transition-colors" />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[#D4AF37] text-black text-[7px] font-bold flex items-center justify-center rounded-full">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile full-screen menu */}
+      <div
+        className={`fixed inset-0 bg-[#0A0A0A] z-40 lg:hidden flex flex-col items-center justify-center transition-opacity duration-300 ${
+          isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <nav className="flex flex-col items-center gap-10">
+          {navLinks.map((link, i) => (
+            <Link
+              key={link.key}
+              href={link.path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`font-serif text-4xl text-white/80 hover:text-[#D4AF37] transition-all duration-300 ${
+                isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              }`}
+              style={{ transitionDelay: `${i * 80}ms` }}
+            >
+              {t.nav[link.key as keyof typeof t.nav]}
+            </Link>
+          ))}
+
+          {/* Mobile language switcher */}
+          <div className="flex gap-4 pt-4">
+            {LANGUAGES.map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => setLanguage(lang.code as Language)}
+                className={`text-[9px] uppercase tracking-[0.3em] font-bold px-3 py-2 border transition-colors ${
+                  language === lang.code
+                    ? "border-[#D4AF37] text-[#D4AF37]"
+                    : "border-white/10 text-white/30 hover:border-white/30 hover:text-white/60"
+                }`}
+              >
+                {lang.code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }}
+            className="text-[10px] uppercase tracking-[0.4em] text-[#D4AF37] border border-[#D4AF37]/30 px-10 py-4 mt-2"
+          >
+            {t.nav.viewBag} ({cartCount})
+          </button>
+        </nav>
+
+        <div className="absolute bottom-12 text-center">
+          <p className="text-[9px] uppercase tracking-[0.4em] text-white/20">The Olfactory Avant-Garde</p>
+        </div>
       </div>
-    </header>
+
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+    </>
   );
 }

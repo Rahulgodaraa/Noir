@@ -1,104 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useRef } from "react";
-import { useTheme } from "../context/ThemeContext";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import Image from "next/image";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function HeroClient() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const { t } = useLanguage();
 
-  useLayoutEffect(() => {
-    let ctx: any;
-
-    const initGSAP = async () => {
-      const gsapModule = await import("gsap");
-      const gsap = gsapModule.gsap;
-
-      ctx = gsap.context(() => {
-        // We use .fromTo instead of .from to ensure GSAP 
-        // takes full control of the opacity immediately
-        const tl = gsap.timeline({ delay: 0.2 });
-
-        tl.fromTo(".hero-line", 
-          { y: 60, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, ease: "power4.out", stagger: 0.15 }
-        )
-        .fromTo(".hero-sub",
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
-          "-=0.5"
-        )
-        .fromTo(".hero-btn",
-          { y: 15, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
-          "-=0.4"
-        );
-      }, containerRef);
-    };
-
-    initGSAP();
-
-    return () => ctx?.revert();
-  }, []);
+  useGSAP(() => {
+    const isMobile = window.innerWidth < 768;
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.fromTo(
+      imageRef.current,
+      { opacity: 0, y: isMobile ? 20 : 0, scale: isMobile ? 1 : 1.05 },
+      { opacity: 1, y: 0, scale: 1, duration: isMobile ? 0.8 : 1.8 }
+    ).fromTo(
+      ".hero-reveal",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15 },
+      "-=0.8"
+    );
+  }, { scope: containerRef });
 
   return (
     <div
       ref={containerRef}
-      className="relative z-10 h-full w-full flex items-center"
+      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#0A0A0A]"
     >
-      {/* ADDED 'invisible' class or manual opacity style 
-         to prevent the text from showing before GSAP loads 
-      */}
-      <div
-        className={`
-          w-full max-w-6xl mx-auto
-          px-6 sm:px-8 md:px-12
-          text-center md:text-left
-          ${isDark ? "text-white" : "text-black"} 
-          md:text-white
-        `}
-      >
-        <h1 className="font-light leading-tight">
-          <span className="block hero-line text-4xl sm:text-5xl md:text-6xl lg:text-7xl opacity-0">
-            Wrap Yourself
-          </span>
-          <span className="block hero-line text-4xl sm:text-5xl md:text-6xl lg:text-7xl opacity-0">
-            in Noir Elegance
-          </span>
-        </h1>
+      {/* Ambient — desktop only */}
+      <div className="absolute inset-0 z-0 hidden md:block pointer-events-none">
+        <Image src="/images/signature-night.jpg" alt="" fill
+          className="object-cover opacity-[0.06] blur-3xl scale-110" aria-hidden />
+      </div>
 
-        <p
-          className={`
-            hero-sub mt-6 mx-auto md:mx-0
-            max-w-xl text-base sm:text-lg
-            ${isDark ? "text-white/80" : "text-black/70"}
-            md:text-white/80 opacity-0
-          `}
-        >
-          A seductive blend of freshness and depth — crafted to elevate
-          presence, confidence, and timeless sophistication.
-        </p>
+      {/* Ghost wordmark — desktop only */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden hidden md:flex">
+        <span className="font-serif text-[18vw] font-light text-white/[0.02] tracking-tighter uppercase select-none whitespace-nowrap">
+          Noir Essence
+        </span>
+      </div>
 
-        <div className="hero-btn mt-8 sm:mt-10 flex justify-center md:justify-start opacity-0">
-          <Link
-            href="/products"
-            className={`
-              px-7 sm:px-8 py-3 sm:py-4
-              rounded-full border text-sm sm:text-base
-              transition-all duration-300
-              ${
-                isDark
-                  ? "border-white/40 text-white hover:bg-white hover:text-black"
-                  : "border-black/30 text-black hover:bg-black hover:text-white"
-              }
-              md:border-white/40 md:text-white md:hover:bg-white md:hover:text-black
-            `}
-          >
-            View Our Collections →
-          </Link>
+      {/* Content */}
+      <div className="relative z-10 w-full flex flex-col items-center text-center px-5 pt-28 pb-10 md:pt-0 md:pb-0">
+        <div className="hero-reveal mb-8 md:mb-10">
+          <span className="text-[#D4AF37] tracking-[0.5em] text-[7px] md:text-[8px] uppercase font-bold">
+            {t.hero.eyebrow}
+          </span>
         </div>
+
+        <div ref={imageRef} className="relative w-full max-w-[260px] md:max-w-[420px] aspect-[3/4] z-10">
+          <Image
+            src="/images/signature-night.jpg"
+            alt={t.hero.productName}
+            fill
+            className="object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.8)]"
+            priority
+            sizes="(max-width: 768px) 260px, 420px"
+          />
+        </div>
+
+        <div className="hero-reveal mt-[-20px] md:mt-[-40px] relative z-20 flex flex-col items-center w-full">
+          <h2
+            className="font-serif text-3xl md:text-5xl mb-2 md:mb-4"
+            style={{
+              background: "linear-gradient(135deg, #F3E5AB 0%, #D4AF37 40%, #F9F295 70%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 0 30px rgba(212,175,55,0.45)) drop-shadow(0 0 60px rgba(212,175,55,0.2))",
+            }}
+          >
+            {t.hero.productName}
+          </h2>
+          <p className="text-white/35 text-[8px] md:text-[10px] uppercase tracking-[0.35em] font-light mb-8 md:mb-10">
+            {t.hero.tagline}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 w-full max-w-xs sm:max-w-none sm:w-auto">
+            <Link href="/products" className="btn-gold px-10 py-4 text-center text-[10px]">
+              {t.hero.discover}
+            </Link>
+            <Link href="/the-house" className="btn-outline px-10 py-4 text-center text-[10px]">
+              {t.hero.theHouse}
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator — desktop only */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-3 opacity-20">
+        <div className="w-px h-16 bg-gradient-to-b from-[#D4AF37] to-transparent" />
       </div>
     </div>
   );
